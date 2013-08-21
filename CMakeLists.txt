@@ -88,14 +88,14 @@ add_library(aware STATIC
 # Examples
 ###############################################################################
 
-add_executable(announce
-  example/announce.cpp
+add_executable(zannounce
+  example/zannounce.cpp
 )
-set_target_properties(announce PROPERTIES RUNTIME_OUTPUT_DIRECTORY bin)
-target_link_libraries(announce aware ${EXTRA_LIBS})
+set_target_properties(zannounce PROPERTIES RUNTIME_OUTPUT_DIRECTORY bin)
+target_link_libraries(zannounce aware ${EXTRA_LIBS})
 
-add_executable(browse
-  example/browse.cpp
+add_executable(zmonitor
+  example/zmonitor.cpp
 )
-set_target_properties(browse PROPERTIES RUNTIME_OUTPUT_DIRECTORY bin)
-target_link_libraries(browse aware ${EXTRA_LIBS})
+set_target_properties(zmonitor PROPERTIES RUNTIME_OUTPUT_DIRECTORY bin)
+target_link_libraries(zmonitor aware ${EXTRA_LIBS})

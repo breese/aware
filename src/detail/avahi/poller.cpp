@@ -1,4 +1,16 @@
-#include <iostream> // FIXME: Remove
+///////////////////////////////////////////////////////////////////////////////
+//
+// http://github.com/breese/aware
+//
+// Copyright (C) 2013 Bjorn Reese <breese@users.sourceforge.net>
+//
+// Distributed under the Boost Software License, Version 1.0.
+//    (See accompanying file LICENSE_1_0.txt or copy at
+//          http://www.boost.org/LICENSE_1_0.txt)
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#include <cassert>
 #include <new> // std::nothrow
 #include <boost/asio/io_service.hpp>
 #include <boost/bind.hpp>
@@ -38,8 +50,8 @@ struct AvahiWatch
 
     void update(AvahiWatchEvent event)
     {
-        std::cout << __PRETTY_FUNCTION__ << std::endl;
         // FIXME
+        assert(false);
     }
 
     AvahiWatchEvent get_events() const
@@ -59,7 +71,6 @@ struct AvahiWatch
     void process_read(const boost::system::error_code& error,
                       std::size_t bytes_transferred)
     {
-        // std::cout << __PRETTY_FUNCTION__ << " error=" << error << std::endl;
         switch (error.value())
         {
         case 0:
@@ -90,7 +101,6 @@ struct AvahiWatch
     void process_write(const boost::system::error_code& error,
                        std::size_t bytes_transferred)
     {
-        // std::cout << __PRETTY_FUNCTION__ << " error=" << error << std::endl;
         switch (error.value())
         {
         case 0:
@@ -189,7 +199,6 @@ public:
           callback(callback),
           userdata(userdata)
     {
-        // std::cout << __PRETTY_FUNCTION__ << " this=" << this << std::endl;
     }
 
     ~avahi_timer()
@@ -216,12 +225,9 @@ public:
 
     void update(const struct timeval *tv)
     {
-        // std::cout << __PRETTY_FUNCTION__ << " this=" << this << std::endl;
-
         if (tv)
         {
             const AvahiUsec deadline = ((tv->tv_sec == 0) && (tv->tv_usec == 0)) ? 0 : -avahi_age(tv);
-            // std::cout << "expires in " << deadline << " usec" << std::endl;
             boost::system::error_code dummy;
             timer.expires_from_now(boost::posix_time::microseconds(deadline), dummy);
             timer.async_wait(boost::bind(&avahi_timer::process_timeout,
@@ -236,7 +242,6 @@ public:
 
     void process_timeout(const boost::system::error_code error)
     {
-        // std::cout << __PRETTY_FUNCTION__ << " this=" << this << " error=" << error << std::endl;
         switch (error.value())
         {
         case 0:

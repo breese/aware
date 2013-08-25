@@ -13,38 +13,36 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <string>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <aware/io_service.hpp>
 #include <aware/contact.hpp>
 
-// FIXME: Remove these from public API
-#include <aware/detail/avahi/browser.hpp>
-
 namespace aware
 {
+namespace detail { class monitor; }
 
 class monitor_socket
 {
+    typedef boost::shared_ptr<aware::detail::monitor> monitor_ptr;
+    typedef std::map<std::string, monitor_ptr> monitor_map;
+
 public:
     typedef boost::function<void (const boost::system::error_code&,
                                   const aware::contact&)> async_listen_handler;
 
     monitor_socket(aware::io_service& io);
 
-    // FIXME: Listen on domain or for specific service?
-    void async_listen(async_listen_handler handler);
+    void async_listen(const aware::contact& contact,
+                      async_listen_handler handler);
 
 private:
-    void do_initialize();
-    void do_async_listen(async_listen_handler);
-    void process_listen(const boost::system::error_code&,
-                        const aware::contact&,
-                        async_listen_handler);
+    void do_async_listen(const aware::contact&, async_listen_handler);
 
 private:
     aware::io_service& io;
-    boost::shared_ptr<aware::detail::avahi::browser> browser;
+    monitor_map monitors; // FIXME: thread-safety
 };
 
 } // namespace aware

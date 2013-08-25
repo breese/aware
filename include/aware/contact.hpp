@@ -36,6 +36,7 @@ public:
             const std::string& type,
             const endpoint_type& endpoint,
             const property_map_type& properties);
+    contact(const contact&);
 
     const std::string& get_name() const { return name; }
     const std::string& get_type() const { return type; }

@@ -30,22 +30,23 @@ class client;
 class browser
 {
 public:
-    typedef boost::function<void (const boost::system::error_code&,
-                                  const aware::contact&)> async_listen_handler;
+    typedef boost::function<void (const aware::contact&)> join_type;
+    typedef boost::function<void (const aware::contact&)> leave_type;
+    typedef boost::function<void (const boost::system::error_code&)> failure_type;
 
-    browser(const aware::detail::avahi::client&);
+    browser(const aware::detail::avahi::client&,
+            const aware::contact& contact,
+            join_type,
+            leave_type,
+            failure_type);
     ~browser();
-
-    void async_listen(async_listen_handler);
-
-    // These are internal functions
-    void on_join(const aware::contact&);
-    void on_leave(const aware::contact&);
-    void on_failure(const boost::system::error_code&);
 
 private:
     AvahiServiceBrowser *ptr;
-    async_listen_handler handler;
+public:
+    join_type on_join;
+    leave_type on_leave;
+    failure_type on_failure;
 };
 
 } // namespace avahi

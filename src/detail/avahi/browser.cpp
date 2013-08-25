@@ -10,7 +10,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <iostream> // FIXME
 #include <cassert>
 #include <new> // std::bad_alloc
 #include <boost/asio.hpp>
@@ -44,6 +43,24 @@ boost::asio::ip::address to_address(const AvahiAddress& addr)
     }
 }
 
+// Extract "type" from a "_type._tcp" string.
+// Returns empty string if a parse error occurred.
+std::string extract_type(const char *type)
+{
+  const char *beginning = type;
+  const char *ending = type;
+  if (*beginning == '_')
+  {
+    ++beginning;
+    ending = std::strchr(beginning, '.');
+    if (ending == 0)
+    {
+      ending = beginning;
+    }
+  }
+  return std::string(beginning, ending);
+}
+
 } // namespace avahi
 } // namespace detail
 } // namespace 
@@ -54,7 +71,7 @@ void aware_avahi_resolver_callback(AvahiServiceResolver *resolver,
                                    AvahiProtocol protocol,
                                    AvahiResolverEvent event,
                                    const char *name,
-                                   const char *type,
+                                   const char *full_type,
                                    const char *domain,
                                    const char *host_name,
                                    const AvahiAddress *address,
@@ -83,6 +100,7 @@ void aware_avahi_resolver_callback(AvahiServiceResolver *resolver,
         // Notify requester
         boost::asio::ip::tcp::endpoint endpoint(aware::detail::avahi::to_address(*address),
                                                 port);
+        std::string type = aware::detail::avahi::extract_type(full_type);
         aware::contact contact(name, type, endpoint, properties);
         self->on_join(contact);
     }
@@ -101,17 +119,11 @@ void aware_avahi_browser_callback(AvahiServiceBrowser *browser,
                                   AvahiProtocol protocol,
                                   AvahiBrowserEvent event,
                                   const char *name,
-                                  const char *type,
+                                  const char *full_type,
                                   const char *domain,
                                   AvahiLookupResultFlags,
                                   void *userdata)
 {
-    // std::cout << __PRETTY_FUNCTION__ << " event=" << event << std::endl;
-    // std::cout << "  interface=" << interface << std::endl;
-    // std::cout << "  protocol=" << protocol << std::endl;
-    // if (name) std::cout << "  name=" << name << std::endl;
-    // if (type) std::cout << "  type=" << type << std::endl;
-    // if (domain) std::cout << "  domain=" << domain << std::endl;
     aware::detail::avahi::browser *self = static_cast<aware::detail::avahi::browser *>(userdata);
 
     switch (event)
@@ -131,7 +143,7 @@ void aware_avahi_browser_callback(AvahiServiceBrowser *browser,
                                                                         interface,
                                                                         protocol,
                                                                         name,
-                                                                        type,
+                                                                        full_type,
                                                                         domain,
                                                                         AVAHI_PROTO_UNSPEC,
                                                                         AvahiLookupFlags(0),
@@ -149,6 +161,7 @@ void aware_avahi_browser_callback(AvahiServiceBrowser *browser,
 
     case AVAHI_BROWSER_REMOVE:
         {
+            std::string type = aware::detail::avahi::extract_type(full_type);
             aware::contact contact(name, type);
             self->on_leave(contact);
         }
@@ -172,12 +185,20 @@ namespace detail
 namespace avahi
 {
 
-browser::browser(const aware::detail::avahi::client& client)
+browser::browser(const aware::detail::avahi::client& client,
+                 const aware::contact& contact,
+                 join_type on_join,
+                 leave_type on_leave,
+                 failure_type on_failure)
+    : on_join(on_join),
+      on_leave(on_leave),
+      on_failure(on_failure)
 {
+    std::string type = "_" + contact.get_type() + "._tcp";
     ptr = avahi_service_browser_new(client,
                                     AVAHI_IF_UNSPEC,
                                     AVAHI_PROTO_UNSPEC,
-                                    "_transenna._tcp",
+                                    type.c_str(),
                                     NULL,
                                     AvahiLookupFlags(0),
                                     aware_avahi_browser_callback,
@@ -192,32 +213,6 @@ browser::~browser()
     {
         avahi_service_browser_free(ptr);
     }
-}
-
-void browser::async_listen(async_listen_handler h)
-{
-    assert(ptr != 0);
-    handler = h;
-}
-
-void browser::on_join(const aware::contact& contact)
-{
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-    boost::system::error_code success;
-    handler(success, contact);
-}
-
-void browser::on_leave(const aware::contact& contact)
-{
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-    boost::system::error_code success; // FIXME: Indicate join/leave somehow
-    handler(success, contact);
-}
-
-void browser::on_failure(const boost::system::error_code& error)
-{
-    aware::contact no_contact;
-    handler(error, no_contact);
 }
 
 } // namespace avahi

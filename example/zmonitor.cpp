@@ -24,9 +24,10 @@ public:
           socket(io)
     {}
 
-    void async_listen()
+    void async_listen(const aware::contact& contact)
     {
-        socket.async_listen(boost::bind(&my_monitor::process_listen,
+        socket.async_listen(contact,
+                            boost::bind(&my_monitor::process_listen,
                                         this,
                                         boost::asio::placeholders::error,
                                         _2));
@@ -40,6 +41,7 @@ private:
         {
         case 0:
             {
+                std::cout << "Entry:" << std::endl;
                 std::cout << "  name = " << contact.get_name() << std::endl;
                 std::cout << "  type = " << contact.get_type() << std::endl;
                 std::cout << "  endpoint = " << contact.get_endpoint() << std::endl;
@@ -51,7 +53,7 @@ private:
                     std::cout << "  " << it->first << " = " << it->second << std::endl;
                 }
                 // Launch the next listen
-                async_listen();
+                async_listen(contact);
             }
             break;
 
@@ -71,10 +73,11 @@ private:
 
 int main(int argc, char *argv[])
 {
+    aware::contact contact("", "announce");
     boost::asio::io_service io;
     aware::io_service aio(io);
     my_monitor monitor(aio);
-    monitor.async_listen();
+    monitor.async_listen(contact);
     io.run();
     return 0;
 }

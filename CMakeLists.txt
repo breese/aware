@@ -38,7 +38,7 @@ set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES})
 # Avahi package
 ###############################################################################
 
-if (false)
+if (true)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(AVAHI avahi-client)
 if (NOT ${AVAHI_FOUND})
@@ -53,6 +53,7 @@ endforeach()
 link_directories(${AVAHI_LIBRARY_DIRS})
 set(EXTRA_LIBS ${EXTRA_LIBS} ${AVAHI_LIBS})
 else()
+  # FIXME: Hack for debugging
   set(AVAHI_BASE_DIR /home/breese/src/aware/avahi-0.6.31)
   set(AVAHI_INCLUDE_DIRS ${AVAHI_BASE_DIR})
   set(AVAHI_LIBRARY_DIRS ${AVAHI_BASE_DIR}/avahi-common/.libs ${AVAHI_BASE_DIR}/avahi-client/.libs)

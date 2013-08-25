@@ -48,4 +48,12 @@ contact::contact(const std::string& name,
 {
 }
 
+contact::contact(const contact& other)
+    : name(other.name),
+      type(other.type),
+      endpoint(other.endpoint),
+      properties(other.properties)
+{
+}
+
 } // namespace aware

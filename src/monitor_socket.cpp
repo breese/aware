@@ -10,50 +10,129 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <cassert>
+#include <queue>
+#include <utility> // std::pair
 #include <boost/bind.hpp>
+#include <boost/ref.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/scoped_ptr.hpp>
 #include <boost/asio/placeholders.hpp>
 #include <aware/monitor_socket.hpp>
+#include <aware/detail/avahi/browser.hpp>
 
 namespace aware
 {
 
+namespace detail
+{
+
+class monitor
+{
+    typedef std::pair<boost::system::error_code, aware::contact> response_type;
+    typedef aware::monitor_socket::async_listen_handler handler_type;
+
+public:
+    monitor(aware::io_service& io,
+            const aware::contact& contact)
+        : io(io),
+          contact(contact)
+    {
+        browser = boost::make_shared<detail::avahi::browser>(io.get_client(),
+                                                             contact,
+                                                             boost::bind(&monitor::on_join,
+                                                                         this,
+                                                                         _1),
+                                                             boost::bind(&monitor::on_leave,
+                                                                         this,
+                                                                         _1),
+                                                             boost::bind(&monitor::on_failure,
+                                                                         this,
+                                                                         _1));
+    }
+
+    //! @pre Must be called from an io_service thread
+    void prepare(handler_type handler)
+    {
+        handlers.push(handler);
+        perform();
+    }
+
+    //! @pre Must be called from an io_service thread
+    void perform()
+    {
+        if (responses.empty())
+            return; // Nothing to send
+        if (handlers.empty())
+            return; // No receiver
+
+        const response_type& response = responses.front();
+        handler_type& handler = handlers.front();
+        handler(response.first, response.second);
+        responses.pop();
+        handlers.pop();
+    }
+
+    void on_join(const aware::contact& contact)
+    {
+        boost::system::error_code success;
+        responses.push(std::make_pair(success, contact));
+        perform();
+    }
+
+    void on_leave(const aware::contact& contact)
+    {
+        boost::system::error_code success;
+        responses.push(std::make_pair(success, contact));
+        perform();
+    }
+
+    void on_failure(const boost::system::error_code& error)
+    {
+        aware::contact no_contact;
+        responses.push(std::make_pair(error, no_contact));
+        perform();
+    }
+
+private:
+    aware::io_service& io;
+    aware::contact contact;
+    boost::shared_ptr<detail::avahi::browser> browser;
+    std::queue<response_type> responses;
+    std::queue<handler_type> handlers;
+};
+
+} // namespace detail
+
 monitor_socket::monitor_socket(aware::io_service& io)
     : io(io)
 {
-    // Browser must be created by an io_service thread because it may trigger
-    // callbacks
-    io.post(boost::bind(&monitor_socket::do_initialize,
-                        this));
 }
 
-void monitor_socket::async_listen(async_listen_handler handler)
+void monitor_socket::async_listen(const aware::contact& contact,
+                                  async_listen_handler handler)
 {
-    // Browser may not have been initialized yet
+    // Perform from io_service thread because the constructor of
+    // detail::avahi::browser will invoke the first callback
     io.post(boost::bind(&monitor_socket::do_async_listen,
                         this,
+                        contact,
                         handler));
 }
 
-void monitor_socket::do_async_listen(async_listen_handler handler)
+void monitor_socket::do_async_listen(const aware::contact& contact,
+                                     async_listen_handler handler)
 {
-    browser->async_listen(boost::bind(&monitor_socket::process_listen,
-                                      this,
-                                      boost::asio::placeholders::error,
-                                      _2,
-                                      handler));
-}
-
-void monitor_socket::do_initialize()
-{
-    browser = boost::make_shared<aware::detail::avahi::browser>(io.get_client());
-}
-
-void monitor_socket::process_listen(const boost::system::error_code& error,
-                                    const aware::contact& contact,
-                                    async_listen_handler handler)
-{
-    handler(error, contact);
+    const std::string& key = contact.get_type();
+    monitor_map::iterator where = monitors.lower_bound(key);
+    if ((where == monitors.end()) || (monitors.key_comp()(key, where->first)))
+    {
+        where = monitors.insert(where,
+                                monitor_map::value_type(key,
+                                                        boost::make_shared<aware::detail::monitor>(boost::ref(io), contact)));
+    }
+    assert(where != monitors.end());
+    where->second->prepare(handler);
 }
 
 } // namespace aware

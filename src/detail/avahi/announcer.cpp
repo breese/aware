@@ -10,7 +10,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <iostream> // FIXME
 #include <cassert>
 #include <new> // std::bad_alloc
 #include <avahi-common/error.h>
@@ -26,7 +25,6 @@ void avahi_entry_group_callback(AvahiEntryGroup *group,
                                 AvahiEntryGroupState state,
                                 void *userdata)
 {
-    std::cout << __PRETTY_FUNCTION__ << " state=" << state << std::endl;
     aware::detail::avahi::announcer *self = static_cast<aware::detail::avahi::announcer *>(userdata);
 
     switch (state)
@@ -183,14 +181,12 @@ void announcer::commit(AvahiEntryGroup *group)
 
 void announcer::on_established(AvahiEntryGroup *group)
 {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
     boost::system::error_code success;
     handler(success);
 }
 
 void announcer::on_collision(AvahiEntryGroup *group)
 {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
     // FIXME
 }
 

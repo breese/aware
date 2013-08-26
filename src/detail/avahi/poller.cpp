@@ -152,7 +152,7 @@ void aware_avahi_watch_update(AvahiWatch *self,
 extern "C"
 AvahiWatchEvent aware_avahi_watch_get_events(AvahiWatch *self)
 {
-    self->get_events();
+    return self->get_events();
 }
 
 //-----------------------------------------------------------------------------

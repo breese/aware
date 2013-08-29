@@ -14,6 +14,8 @@
 #include <new> // std::bad_alloc
 #include <avahi-common/error.h>
 #include <avahi-common/strlst.h>
+#include <avahi-common/alternative.h>
+#include <avahi-common/malloc.h>
 #include <avahi-client/publish.h>
 #include <avahi-client/client.h>
 #include <aware/detail/avahi/error.hpp>
@@ -125,9 +127,12 @@ void announcer::async_announce(const aware::contact& contact,
     const aware::contact::endpoint_type endpoint = contact.get_endpoint();
     // Use all network interfaces
     const AvahiIfIndex interface_index = AVAHI_IF_UNSPEC;
-    // Use all protocols
-    // FIXME: Use endpoint?
-    const AvahiProtocol protocol = AVAHI_PROTO_UNSPEC;
+    // Use only a specific protocol
+    const AvahiProtocol protocol =
+        contact.get_endpoint().protocol() == boost::asio::ip::tcp::v6()
+        ? AVAHI_PROTO_INET6
+        : AVAHI_PROTO_INET;
+    std::string name = contact.get_name();
     // FIXME: from contact (endpoint.protocol())
     std::string type = "_" + contact.get_type() + "._tcp";
     // Use .local
@@ -147,20 +152,33 @@ void announcer::async_announce(const aware::contact& contact,
         return;
     }
 
-    int rc = avahi_entry_group_add_service_strlst(ptr,
-                                                  interface_index,
-                                                  protocol,
-                                                  flags,
-                                                  contact.get_name().c_str(),
-                                                  type.c_str(),
-                                                  domain,
-                                                  host.empty() ? 0 : host.c_str(),
-                                                  endpoint.port(),
-                                                  properties);
-    if (rc != AVAHI_OK)
+    while (true)
     {
-        handler(convert_error(rc));
-        return;
+        int rc = avahi_entry_group_add_service_strlst(ptr,
+                                                      interface_index,
+                                                      protocol,
+                                                      flags,
+                                                      name.c_str(),
+                                                      type.c_str(),
+                                                      domain,
+                                                      host.empty() ? 0 : host.c_str(),
+                                                      endpoint.port(),
+                                                      properties);
+        if (rc == AVAHI_ERR_COLLISION)
+        {
+            char *alternative = avahi_alternative_service_name(name.c_str());
+            name = alternative;
+            avahi_free(alternative);
+        }
+        else if (rc != AVAHI_OK)
+        {
+            handler(convert_error(rc));
+            return;
+        }
+        else
+        {
+            break;
+        }
     }
     commit(ptr);
 }

@@ -194,10 +194,14 @@ browser::browser(const aware::detail::avahi::client& client,
       on_leave(on_leave),
       on_failure(on_failure)
 {
+    const AvahiProtocol protocol =
+        contact.get_endpoint().protocol() == boost::asio::ip::tcp::v6()
+        ? AVAHI_PROTO_INET6
+        : AVAHI_PROTO_INET;
     std::string type = "_" + contact.get_type() + "._tcp";
     ptr = avahi_service_browser_new(client,
                                     AVAHI_IF_UNSPEC,
-                                    AVAHI_PROTO_UNSPEC,
+                                    protocol,
                                     type.c_str(),
                                     NULL,
                                     AvahiLookupFlags(0),

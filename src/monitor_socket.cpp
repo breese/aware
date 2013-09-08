@@ -35,8 +35,7 @@ class monitor
 public:
     monitor(aware::io_service& io,
             const aware::contact& contact)
-        : io(io),
-          contact(contact)
+        : contact(contact)
     {
         browser = boost::make_shared<detail::avahi::browser>(io.get_client(),
                                                              contact,
@@ -95,7 +94,6 @@ public:
     }
 
 private:
-    aware::io_service& io;
     aware::contact contact;
     boost::shared_ptr<detail::avahi::browser> browser;
     std::queue<response_type> responses;

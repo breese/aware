@@ -23,8 +23,9 @@ namespace detail
 namespace avahi
 {
 
-struct poller : public ::AvahiPoll
+class poller : public ::AvahiPoll
 {
+public:
     poller(boost::asio::io_service&);
 
     boost::asio::io_service& get_io_service() const;

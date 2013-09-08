@@ -18,7 +18,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(aware)
 
-add_definitions(-g)
+add_definitions(-g -Wall)
 #add_definitions(-fmax-errors=1) # gcc
 #add_definitions(-ferror-limit=1) # clang
 

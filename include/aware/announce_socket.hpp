@@ -38,7 +38,6 @@ private:
                           async_announce_handler);
 
 private:
-    aware::io_service& io;
     // FIXME: Defer intialization until inside io.run()
     aware::detail::avahi::announcer announcer; // FIXME: This may not be created before client has entered one of the AVAHI_CLIENT_S_* states [defs.h]
 };

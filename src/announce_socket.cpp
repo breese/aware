@@ -18,8 +18,7 @@ namespace aware
 {
 
 announce_socket::announce_socket(aware::io_service& io)
-    : io(io),
-      announcer(io.get_client())
+    : announcer(io.get_client())
 {
 }
 

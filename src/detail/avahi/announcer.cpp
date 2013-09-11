@@ -63,8 +63,17 @@ namespace avahi
 class property_list
 {
 public:
-    property_list(const announcer::property_map& properties)
+    property_list()
         : data(0)
+    {
+    }
+
+    ~property_list()
+    {
+        avahi_string_list_free(data);
+    }
+
+    property_list& operator = (const announcer::property_map& properties)
     {
         for (announcer::property_map::const_iterator it = properties.begin();
              it != properties.end();
@@ -76,11 +85,7 @@ public:
                 break;
             }
         }
-    }
-
-    ~property_list()
-    {
-        avahi_string_list_free(data);
+        return *this;
     }
 
     operator AvahiStringList *()
@@ -143,13 +148,17 @@ void announcer::async_announce(const aware::contact& contact,
         ? "" // Use default host name
         : address.to_string();
 
-    property_list properties(contact.get_properties());
-    if (properties == 0)
+    property_list properties;
+    if (!contact.get_properties().empty())
     {
-        boost::system::error_code error(boost::system::errc::not_enough_memory,
-                                        boost::system::system_category());
-        handler(error);
-        return;
+        properties = contact.get_properties();
+        if (properties == 0)
+        {
+            boost::system::error_code error(boost::system::errc::not_enough_memory,
+                                            boost::system::system_category());
+            handler(error);
+            return;
+        }
     }
 
     while (true)

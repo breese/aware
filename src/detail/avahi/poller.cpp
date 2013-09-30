@@ -240,7 +240,7 @@ public:
         }
     }
 
-    void process_timeout(const boost::system::error_code error)
+    void process_timeout(const boost::system::error_code& error)
     {
         switch (error.value())
         {

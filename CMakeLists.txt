@@ -22,6 +22,10 @@ add_definitions(-g -Wall)
 #add_definitions(-fmax-errors=1) # gcc
 #add_definitions(-ferror-limit=1) # clang
 
+if (NOT DEFINED AWARE_BACKEND)
+    set(AWARE_BACKEND "avahi")
+endif()
+
 ###############################################################################
 # Boost package
 ###############################################################################
@@ -38,29 +42,38 @@ set(EXTRA_LIBS ${EXTRA_LIBS} ${Boost_LIBRARIES})
 # Avahi package
 ###############################################################################
 
-if (true)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(AVAHI avahi-client)
-if (NOT ${AVAHI_FOUND})
-  message(FATAL_ERROR "Please install the avahi-client package")
-endif()
-include_directories(${AVAHI_INCLUDE_DIRS})
-# This is a workaround to get path of each library
-foreach(lib ${AVAHI_LIBRARIES})
-  find_library(${lib}_LIBRARY NAMES ${lib} PATHS ${AVAHI_LIBRARY_DIRS})
-  list(APPEND AVAHI_LIBS ${${lib}_LIBRARY})
-endforeach()
-link_directories(${AVAHI_LIBRARY_DIRS})
-set(EXTRA_LIBS ${EXTRA_LIBS} ${AVAHI_LIBS})
-else()
-  # FIXME: Hack for debugging
-  set(AVAHI_BASE_DIR /home/breese/src/aware/avahi-0.6.31)
-  set(AVAHI_INCLUDE_DIRS ${AVAHI_BASE_DIR})
-  set(AVAHI_LIBRARY_DIRS ${AVAHI_BASE_DIR}/avahi-common/.libs ${AVAHI_BASE_DIR}/avahi-client/.libs)
-  set(AVAHI_LIBS avahi-common avahi-client)
-  include_directories(${AVAHI_INCLUDE_DIRS})
-  link_directories(${AVAHI_LIBRARY_DIRS})
-  set(EXTRA_LIBS ${EXTRA_LIBS} ${AVAHI_LIBS})
+if(AWARE_BACKEND STREQUAL "avahi")
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(AVAHI avahi-client)
+
+    if(true)
+        if (${DISABLE_AVAHI})
+            message(STATUS "AVAHI Disabled by request")
+        else()
+            if (NOT ${AVAHI_FOUND})
+                message(FATAL_ERROR "Please install the avahi-client package")
+            else()
+                set(USE_AVAHI TRUE)
+                include_directories(${AVAHI_INCLUDE_DIRS})
+                # This is a workaround to get path of each library
+                foreach(lib ${AVAHI_LIBRARIES})
+                    find_library(${lib}_LIBRARY NAMES ${lib} PATHS ${AVAHI_LIBRARY_DIRS})
+                    list(APPEND AVAHI_LIBS ${${lib}_LIBRARY})
+                endforeach()
+                link_directories(${AVAHI_LIBRARY_DIRS})
+                set(EXTRA_LIBS ${EXTRA_LIBS} ${AVAHI_LIBS})
+            endif()
+        endif()
+    else()
+        # FIXME: Hack for debugging
+        set(AVAHI_BASE_DIR /home/breese/src/aware/avahi-0.6.31)
+        set(AVAHI_INCLUDE_DIRS ${AVAHI_BASE_DIR})
+        set(AVAHI_LIBRARY_DIRS ${AVAHI_BASE_DIR}/avahi-common/.libs ${AVAHI_BASE_DIR}/avahi-client/.libs)
+        set(AVAHI_LIBS avahi-common avahi-client)
+        include_directories(${AVAHI_INCLUDE_DIRS})
+        link_directories(${AVAHI_LIBRARY_DIRS})
+        set(EXTRA_LIBS ${EXTRA_LIBS} ${AVAHI_LIBS})
+    endif()
 endif()
 
 ###############################################################################
@@ -73,17 +86,37 @@ include_directories(BEFORE include)
 link_directories(${AWARE_LIB_DIR})
 set(LIBRARY_OUTPUT_PATH lib)
 
-add_library(aware STATIC
-  src/announce_socket.cpp
+set(AWARE_SRC
   src/contact.cpp
-  src/monitor_socket.cpp
   src/detail/native_socket.cpp
-  src/detail/avahi/announcer.cpp
-  src/detail/avahi/browser.cpp
-  src/detail/avahi/client.cpp
-  src/detail/avahi/error.cpp
-  src/detail/avahi/poller.cpp
 )
+
+set(AWARE_AVAHI_SOURCE
+  src/avahi/monitor_socket.cpp
+  src/avahi/announce_socket.cpp
+  src/avahi/detail/announcer.cpp
+  src/avahi/detail/browser.cpp
+  src/avahi/detail/client.cpp
+  src/avahi/detail/error.cpp
+  src/avahi/detail/poller.cpp
+)
+
+set(AWARE_ANDROID_SOURCE
+  src/detail/android/announcer.cpp
+  src/detail/android/browser.cpp
+  src/detail/android/client.cpp
+  src/detail/android/poller.cpp
+)
+
+if(AWARE_BACKEND STREQUAL "avahi")
+    list(APPEND AWARE_SRC ${AWARE_AVAHI_SOURCE})
+elseif(AWARE_BACKEND STREQUAL "android")
+    list(APPEND AWARE_SRC ${AWARE_ANDROID_SOURCE})
+else()
+    message(FATAL_ERROR "'${AWARE_BACKEND}' is an invalid value for AWARE_BACKEND")
+endif()
+
+add_library(aware STATIC ${AWARE_SRC})
 
 target_link_libraries(aware ${EXTRA_LIBS})
 

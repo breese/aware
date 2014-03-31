@@ -18,16 +18,16 @@
 #include <avahi-common/malloc.h>
 #include <avahi-client/publish.h>
 #include <avahi-client/client.h>
-#include <aware/detail/avahi/error.hpp>
-#include <aware/detail/avahi/client.hpp>
-#include <aware/detail/avahi/announcer.hpp>
+#include <aware/avahi/detail/error.hpp>
+#include <aware/avahi/detail/client.hpp>
+#include <aware/avahi/detail/announcer.hpp>
 
 extern "C"
 void avahi_entry_group_callback(AvahiEntryGroup *group,
                                 AvahiEntryGroupState state,
                                 void *userdata)
 {
-    aware::detail::avahi::announcer *self = static_cast<aware::detail::avahi::announcer *>(userdata);
+    aware::avahi::detail::announcer *self = static_cast<aware::avahi::detail::announcer *>(userdata);
 
     switch (state)
     {
@@ -50,9 +50,9 @@ void avahi_entry_group_callback(AvahiEntryGroup *group,
 
 namespace aware
 {
-namespace detail
-{
 namespace avahi
+{
+namespace detail
 {
 
 //-----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ private:
 // announcer
 //-----------------------------------------------------------------------------
 
-announcer::announcer(const aware::detail::avahi::client& client)
+announcer::announcer(const aware::avahi::detail::client& client)
     : ptr(0)
 {
     ptr = avahi_entry_group_new(client,

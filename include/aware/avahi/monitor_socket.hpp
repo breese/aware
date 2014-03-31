@@ -1,5 +1,5 @@
-#ifndef AWARE_MONITOR_SOCKET_HPP
-#define AWARE_MONITOR_SOCKET_HPP
+#ifndef AWARE_AVAHI_MONITOR_SOCKET_HPP
+#define AWARE_AVAHI_MONITOR_SOCKET_HPP
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -16,23 +16,41 @@
 #include <string>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
-#include <aware/io_service.hpp>
+#include <aware/avahi/io_service.hpp>
 #include <aware/contact.hpp>
+#include <aware/monitor_socket.hpp>
 
 namespace aware
 {
+
+namespace avahi
+{
+
 namespace detail { class monitor; }
 
-class monitor_socket
+class monitor_socket : public aware::monitor_socket
 {
+    typedef boost::shared_ptr<aware::avahi::detail::monitor> monitor_ptr;
+    typedef std::map<std::string, monitor_ptr> monitor_map;
+
 public:
     typedef boost::function<void (const boost::system::error_code&,
                                   const aware::contact&)> async_listen_handler;
 
-    virtual void async_listen(const aware::contact& contact,
-                              async_listen_handler handler) = 0;
+    monitor_socket(aware::avahi::io_service& io);
+
+    void async_listen(const aware::contact& contact,
+                      async_listen_handler handler);
+
+private:
+    void do_async_listen(const aware::contact&, async_listen_handler);
+
+private:
+    aware::avahi::io_service& io;
+    monitor_map monitors; // FIXME: thread-safety
 };
 
+} // namespace avahi
 } // namespace aware
 
-#endif // AWARE_MONITOR_SOCKET_HPP
+#endif // AWARE_AVAHI_MONITOR_SOCKET_HPP

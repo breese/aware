@@ -19,9 +19,9 @@ struct AvahiClient;
 
 namespace aware
 {
-namespace detail
-{
 namespace avahi
+{
+namespace detail
 {
 class poller;
 
@@ -29,7 +29,7 @@ class poller;
 class client
 {
 public:
-    client(aware::detail::avahi::poller&);
+    client(aware::avahi::detail::poller&);
     virtual ~client();
 
     operator AvahiClient *() const { return ptr; }

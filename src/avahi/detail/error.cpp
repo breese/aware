@@ -11,13 +11,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <avahi-common/error.h>
-#include <aware/detail/avahi/error.hpp>
+#include <aware/avahi/detail/error.hpp>
 
 namespace aware
 {
-namespace detail
-{
 namespace avahi
+{
+namespace detail
 {
 
 // FIXME: We may need to define our own error codes
@@ -42,6 +42,6 @@ boost::system::error_code convert_error(int error)
     }
 }
 
-} // namespace avahi
 } // namespace detail
+} // namespace avahi
 } // namespace aware

@@ -14,15 +14,15 @@
 #include <cassert>
 #include <new> // std::bad_alloc
 #include <avahi-client/client.h>
-#include <aware/detail/avahi/poller.hpp>
-#include <aware/detail/avahi/client.hpp>
+#include <aware/avahi/detail/poller.hpp>
+#include <aware/avahi/detail/client.hpp>
 
 extern "C"
 void avahi_client_callback(AvahiClient *client,
                            AvahiClientState state,
                            void *userdata)
 {
-    aware::detail::avahi::client *self = static_cast<aware::detail::avahi::client *>(userdata);
+    aware::avahi::detail::client *self = static_cast<aware::avahi::detail::client *>(userdata);
 
     switch (state)
     {
@@ -48,12 +48,12 @@ void avahi_client_callback(AvahiClient *client,
 
 namespace aware
 {
-namespace detail
-{
 namespace avahi
 {
+namespace detail
+{
 
-client::client(aware::detail::avahi::poller& poller)
+client::client(aware::avahi::detail::poller& poller)
     : ptr(0)
 {
     const AvahiClientFlags flags = AvahiClientFlags(0);
@@ -118,6 +118,6 @@ void client::failure(AvahiClient *client)
     // FIXME
 }
 
-} // namespace avahi
 } // namespace detail
+} // namespace avahi
 } // namespace aware

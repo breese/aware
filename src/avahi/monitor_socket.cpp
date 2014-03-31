@@ -18,10 +18,13 @@
 #include <boost/make_shared.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/asio/placeholders.hpp>
-#include <aware/monitor_socket.hpp>
-#include <aware/detail/avahi/browser.hpp>
+#include <aware/avahi/monitor_socket.hpp>
+#include <aware/avahi/detail/browser.hpp>
 
 namespace aware
+{
+
+namespace avahi
 {
 
 namespace detail
@@ -33,11 +36,11 @@ class monitor
     typedef aware::monitor_socket::async_listen_handler handler_type;
 
 public:
-    monitor(aware::io_service& io,
+    monitor(aware::avahi::io_service& io,
             const aware::contact& contact)
         : contact(contact)
     {
-        browser = boost::make_shared<detail::avahi::browser>(io.get_client(),
+        browser = boost::make_shared<detail::browser>(io.get_client(),
                                                              contact,
                                                              boost::bind(&monitor::on_join,
                                                                          this,
@@ -95,14 +98,14 @@ public:
 
 private:
     aware::contact contact;
-    boost::shared_ptr<detail::avahi::browser> browser;
+    boost::shared_ptr<detail::browser> browser;
     std::queue<response_type> responses;
     std::queue<handler_type> handlers;
 };
 
 } // namespace detail
 
-monitor_socket::monitor_socket(aware::io_service& io)
+monitor_socket::monitor_socket(aware::avahi::io_service& io)
     : io(io)
 {
 }
@@ -111,7 +114,7 @@ void monitor_socket::async_listen(const aware::contact& contact,
                                   async_listen_handler handler)
 {
     // Perform from io_service thread because the constructor of
-    // detail::avahi::browser will invoke the first callback
+    // detail::browser will invoke the first callback
     io.post(boost::bind(&monitor_socket::do_async_listen,
                         this,
                         contact,
@@ -127,10 +130,11 @@ void monitor_socket::do_async_listen(const aware::contact& contact,
     {
         where = monitors.insert(where,
                                 monitor_map::value_type(key,
-                                                        boost::make_shared<aware::detail::monitor>(boost::ref(io), contact)));
+                                                        boost::make_shared<aware::avahi::detail::monitor>(boost::ref(io), contact)));
     }
     assert(where != monitors.end());
     where->second->prepare(handler);
 }
 
+} // namespace avahi
 } // namespace aware

@@ -23,9 +23,9 @@ struct AvahiEntryGroup;
 
 namespace aware
 {
-namespace detail
-{
 namespace avahi
+{
+namespace detail
 {
 class client;
 
@@ -36,7 +36,7 @@ public:
     typedef std::map<std::string, std::string> property_map;
     typedef boost::function<void (const boost::system::error_code&)> async_announce_handler;
 
-    announcer(const aware::detail::avahi::client&);
+    announcer(const aware::avahi::detail::client&);
     ~announcer();
 
     void async_announce(const aware::contact&,
@@ -53,8 +53,8 @@ private:
     async_announce_handler handler;
 };
 
-} // namespace avahi
 } // namespace detail
+} // namespace avahi
 } // namespace aware
 
 #endif // AWARE_DETAIL_AVAHI_ANNOUNCER_HPP

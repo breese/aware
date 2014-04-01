@@ -16,14 +16,15 @@
 #include <boost/function.hpp>
 #include <boost/system/error_code.hpp>
 #include <aware/contact.hpp>
+#include <aware/avahi/detail/client.hpp>
 
-class AvahiServiceBrowser;
+struct AvahiServiceBrowser;
 
 namespace aware
 {
-namespace detail
-{
 namespace avahi
+{
+namespace detail
 {
 class client;
 
@@ -34,7 +35,7 @@ public:
     typedef boost::function<void (const aware::contact&)> leave_type;
     typedef boost::function<void (const boost::system::error_code&)> failure_type;
 
-    browser(const aware::detail::avahi::client&,
+    browser(const aware::avahi::detail::client&,
             const aware::contact& contact,
             join_type,
             leave_type,
@@ -49,8 +50,8 @@ public:
     failure_type on_failure;
 };
 
-} // namespace avahi
 } // namespace detail
+} // namespace avahi
 } // namespace aware
 
 #endif // AWARE_DETAIL_AVAHI_BROWSER_HPP

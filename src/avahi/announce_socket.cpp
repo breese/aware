@@ -12,12 +12,14 @@
 
 #include <boost/bind.hpp>
 #include <boost/asio/placeholders.hpp>
-#include <aware/announce_socket.hpp>
+#include <aware/avahi/announce_socket.hpp>
 
 namespace aware
 {
+namespace avahi
+{
 
-announce_socket::announce_socket(aware::io_service& io)
+announce_socket::announce_socket(aware::avahi::io_service& io)
     : announcer(io.get_client())
 {
 }
@@ -38,4 +40,5 @@ void announce_socket::process_announce(const boost::system::error_code& error,
     handler(error);
 }
 
+} // namespace avahi
 } // namespace aware

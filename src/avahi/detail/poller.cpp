@@ -19,7 +19,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <avahi-common/timeval.h>
 #include <aware/detail/native_socket.hpp>
-#include <aware/detail/avahi/poller.hpp>
+#include <aware/avahi/detail/poller.hpp>
 
 //-----------------------------------------------------------------------------
 // AvahiWatch
@@ -132,7 +132,7 @@ AvahiWatch *aware_avahi_watch_new(const AvahiPoll *poll,
                                   AvahiWatchCallback callback,
                                   void *userdata)
 {
-    const aware::detail::avahi::poller *poller = static_cast<const aware::detail::avahi::poller *>(poll);
+    const aware::avahi::detail::poller *poller = static_cast<const aware::avahi::detail::poller *>(poll);
     return new (std::nothrow) AvahiWatch(poller->get_io_service(), fd, event, callback, userdata);
 }
 
@@ -286,7 +286,7 @@ AvahiTimeout *aware_avahi_timeout_new(const AvahiPoll *poll,
                                       AvahiTimeoutCallback callback,
                                       void *userdata)
 {
-    const aware::detail::avahi::poller *poller = static_cast<const aware::detail::avahi::poller *>(poll);
+    const aware::avahi::detail::poller *poller = static_cast<const aware::avahi::detail::poller *>(poll);
     boost::shared_ptr<avahi_timer> timer = avahi_timer::create(poller->get_io_service(), tv, callback, userdata);
     return timer->get_resource();
 }
@@ -310,9 +310,9 @@ void aware_avahi_timeout_update(AvahiTimeout *self,
 
 namespace aware
 {
-namespace detail
-{
 namespace avahi
+{
+namespace detail
 {
 
 poller::poller(boost::asio::io_service& io)
@@ -333,6 +333,6 @@ boost::asio::io_service& poller::get_io_service() const
     return io;
 }
 
-} // namespace avahi
 } // namespace detail
+} // namespace avahi
 } // namespace aware

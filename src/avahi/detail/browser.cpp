@@ -16,14 +16,14 @@
 #include <avahi-common/error.h>
 #include <avahi-common/malloc.h>
 #include <avahi-client/lookup.h>
-#include <aware/detail/avahi/client.hpp>
-#include <aware/detail/avahi/browser.hpp>
+#include <aware/avahi/detail/client.hpp>
+#include <aware/avahi/detail/browser.hpp>
 
 namespace aware
 {
-namespace detail
-{
 namespace avahi
+{
+namespace detail
 {
 
 boost::asio::ip::address to_address(const AvahiAddress& addr)
@@ -61,9 +61,9 @@ std::string extract_type(const char *type)
   return std::string(beginning, ending);
 }
 
-} // namespace avahi
 } // namespace detail
-} // namespace 
+} // namespace avahi
+} // namespace aware
 
 extern "C"
 void aware_avahi_resolver_callback(AvahiServiceResolver *resolver,
@@ -80,7 +80,7 @@ void aware_avahi_resolver_callback(AvahiServiceResolver *resolver,
                                    AvahiLookupResultFlags,
                                    void *userdata)
 {
-    aware::detail::avahi::browser *self = static_cast<aware::detail::avahi::browser *>(userdata);
+    aware::avahi::detail::browser *self = static_cast<aware::avahi::detail::browser *>(userdata);
 
     if (event == AVAHI_RESOLVER_FOUND)
     {
@@ -98,9 +98,9 @@ void aware_avahi_resolver_callback(AvahiServiceResolver *resolver,
             }
         }
         // Notify requester
-        boost::asio::ip::tcp::endpoint endpoint(aware::detail::avahi::to_address(*address),
+        boost::asio::ip::tcp::endpoint endpoint(aware::avahi::detail::to_address(*address),
                                                 port);
-        std::string type = aware::detail::avahi::extract_type(full_type);
+        std::string type = aware::avahi::detail::extract_type(full_type);
         aware::contact contact(name, type, endpoint, properties);
         self->on_join(contact);
     }
@@ -124,7 +124,7 @@ void aware_avahi_browser_callback(AvahiServiceBrowser *browser,
                                   AvahiLookupResultFlags,
                                   void *userdata)
 {
-    aware::detail::avahi::browser *self = static_cast<aware::detail::avahi::browser *>(userdata);
+    aware::avahi::detail::browser *self = static_cast<aware::avahi::detail::browser *>(userdata);
 
     switch (event)
     {
@@ -161,7 +161,7 @@ void aware_avahi_browser_callback(AvahiServiceBrowser *browser,
 
     case AVAHI_BROWSER_REMOVE:
         {
-            std::string type = aware::detail::avahi::extract_type(full_type);
+            std::string type = aware::avahi::detail::extract_type(full_type);
             aware::contact contact(name, type);
             self->on_leave(contact);
         }
@@ -180,12 +180,12 @@ void aware_avahi_browser_callback(AvahiServiceBrowser *browser,
 
 namespace aware
 {
-namespace detail
-{
 namespace avahi
 {
+namespace detail
+{
 
-browser::browser(const aware::detail::avahi::client& client,
+browser::browser(const aware::avahi::detail::client& client,
                  const aware::contact& contact,
                  join_type on_join,
                  leave_type on_leave,
@@ -219,6 +219,6 @@ browser::~browser()
     }
 }
 
-} // namespace avahi
 } // namespace detail
-} // namespace 
+} // namespace avahi
+} // namespace aware

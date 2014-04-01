@@ -17,15 +17,15 @@
 
 namespace aware
 {
-namespace detail
-{
 namespace avahi
+{
+namespace detail
 {
 
 boost::system::error_code convert_error(int error);
 
-} // namespace avahi
 } // namespace detail
+} // namespace avahi
 } // namespace aware
 
 #endif // AWARE_DETAIL_AVAHI_ERROR_HPP

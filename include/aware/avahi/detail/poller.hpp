@@ -18,9 +18,9 @@
 
 namespace aware
 {
-namespace detail
-{
 namespace avahi
+{
+namespace detail
 {
 
 class poller : public ::AvahiPoll

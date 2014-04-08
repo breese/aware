@@ -28,6 +28,8 @@ public:
     template <typename CompletionHandler>
     void post(CompletionHandler handler) { io.post(handler); }
 
+    virtual ~io_service() {}
+
 private:
     boost::asio::io_service& io;
 };

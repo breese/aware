@@ -36,9 +36,6 @@ public:
 
     const detail::client& get_client() const { return client; }
 
-    /*template <typename CompletionHandler>
-    void post(CompletionHandler handler) { io.post(handler); }*/
-
 private:
     detail::poller poller;
     detail::client client;

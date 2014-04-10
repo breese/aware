@@ -1,5 +1,5 @@
-#ifndef AWARE_IO_SERVICE_HPP
-#define AWARE_IO_SERVICE_HPP
+#ifndef AWARE_FACTORY_HPP
+#define AWARE_FACTORY_HPP
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -14,26 +14,24 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <boost/asio/io_service.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace aware
 {
 
-class io_service
+class announce_socket;
+class monitor_socket;
+class io_service;
+
+class factory
 {
 public:
-    io_service(boost::asio::io_service& io)
-        : io(io)
-    {}
+    virtual boost::shared_ptr<aware::io_service> make_service(boost::asio::io_service&) =0;
+    virtual boost::shared_ptr<announce_socket> make_announce(aware::io_service&) = 0;
+    virtual boost::shared_ptr<monitor_socket> make_monitor(aware::io_service&) = 0;
 
-    template <typename CompletionHandler>
-    void post(CompletionHandler handler) { io.post(handler); }
-
-    virtual ~io_service() {}
-
-private:
-    boost::asio::io_service& io;
 };
 
 } // namespace aware
 
-#endif // AWARE_IO_SERVICE_HPP
+#endif // AWARE_FACTORY_HPP

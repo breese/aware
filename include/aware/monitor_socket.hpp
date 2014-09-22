@@ -16,7 +16,6 @@
 #include <string>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
-#include <aware/io_service.hpp>
 #include <aware/contact.hpp>
 
 namespace aware

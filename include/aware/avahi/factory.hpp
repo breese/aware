@@ -14,7 +14,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <aware/factory.hpp>
-#include <aware/avahi/io_service.hpp>
 #include <aware/avahi/announce_socket.hpp>
 #include <aware/avahi/monitor_socket.hpp>
 
@@ -28,16 +27,14 @@ namespace avahi
 class factory : public aware::factory
 {
 public:
-    boost::shared_ptr<aware::io_service> make_service(boost::asio::io_service& io) {
-        return boost::make_shared<aware::avahi::io_service>(boost::ref(io));
+    boost::shared_ptr<aware::announce_socket> make_announce(boost::asio::io_service& io)
+    {
+        return boost::make_shared<aware::avahi::announce_socket>(boost::ref(io));
     }
 
-    boost::shared_ptr<aware::announce_socket> make_announce(aware::io_service& aio) {
-        return boost::make_shared<aware::avahi::announce_socket>((boost::ref(dynamic_cast<aware::avahi::io_service&>(aio))));
-    }
-
-    boost::shared_ptr<aware::monitor_socket> make_monitor(aware::io_service& aio) {
-        return boost::make_shared<aware::avahi::monitor_socket>(boost::ref(dynamic_cast<aware::avahi::io_service&>(aio)));
+    boost::shared_ptr<aware::monitor_socket> make_monitor(boost::asio::io_service& io)
+    {
+        return boost::make_shared<aware::avahi::monitor_socket>(boost::ref(io));
     }
 };
 

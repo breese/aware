@@ -1,17 +1,3 @@
-aware
-=====
-
-Device discovery with [Boost.Asio](http://www.boost.org/doc/libs/release/libs/asio/).
-
-Introduction
-------------
-
-The aware module discovers devices using [ZeroConf](http://en.wikipedia.org/wiki/Zeroconf).
-
-
-An example of the use of aware:
-
-```c++
 #include <iostream>
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
@@ -47,30 +33,3 @@ int main()
     io.run();
     return 0;
 }
-```
-
-Building aware
---------------
-
-1. Make sure [CMake](http://cmake.org/) is installed.
-
-2. Make sure that the libavahi-client-dev package is installed.
-
-3. Checkout the repository.
-
-4. Build the example
-
-   ```bash
-   cmake .
-   make
-   ```
-5. Run the examples
-
-   ```bash
-   bin/zmonitor
-   ```
-   and from another shell:
-
-   ```bash
-   bin/zannounce
-   ```

@@ -42,15 +42,22 @@ class native_socket
     typedef boost::asio::posix::basic_stream_descriptor<service_type> socket_type;
 
 public:
-    typedef boost::function<void (const boost::system::error_code&, std::size_t)> async_read_event_handler;
-    typedef boost::function<void (const boost::system::error_code&, std::size_t)> async_write_event_handler;
     typedef socket_type::native_handle_type native_handle_type;
 
     native_socket(boost::asio::io_service&, native_handle_type);
     ~native_socket();
 
-    void async_read_event(async_read_event_handler);
-    void async_write_event(async_write_event_handler);
+    template <typename Handler>
+    void async_read_event(BOOST_ASIO_MOVE_ARG(Handler) handler)
+    {
+        socket.async_read_some(boost::asio::null_buffers(), handler);
+    }
+
+    template <typename Handler>
+    void async_write_event(BOOST_ASIO_MOVE_ARG(Handler) handler)
+    {
+        socket.async_write_some(boost::asio::null_buffers(), handler);
+    }
 
     native_handle_type native_handle();
 

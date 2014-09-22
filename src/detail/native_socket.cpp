@@ -33,16 +33,6 @@ native_socket::~native_socket()
   }
 }
 
-void native_socket::async_read_event(async_read_event_handler handler)
-{
-    socket.async_read_some(boost::asio::null_buffers(), handler);
-}
-
-void native_socket::async_write_event(async_write_event_handler handler)
-{
-    socket.async_write_some(boost::asio::null_buffers(), handler);
-}
-
 native_socket::native_handle_type native_socket::native_handle()
 {
     return socket.native_handle();

@@ -12,6 +12,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/asio/placeholders.hpp>
+#include <aware/avahi/service.hpp>
 #include <aware/avahi/announce_socket.hpp>
 
 namespace aware
@@ -19,8 +20,9 @@ namespace aware
 namespace avahi
 {
 
-announce_socket::announce_socket(aware::avahi::io_service& io)
-    : announcer(io.get_client())
+announce_socket::announce_socket(boost::asio::io_service& io)
+    : boost::asio::basic_io_object<avahi::service>(io),
+      announcer(boost::asio::use_service<avahi::service>(io).get_client())
 {
 }
 

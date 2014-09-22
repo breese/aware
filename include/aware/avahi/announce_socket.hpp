@@ -14,10 +14,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <boost/function.hpp>
-#include <aware/avahi/io_service.hpp>
-#include <aware/contact.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/basic_io_object.hpp>
 
+#include <aware/contact.hpp>
 #include <aware/announce_socket.hpp>
+#include <aware/avahi/service.hpp>
 #include <aware/avahi/detail/announcer.hpp>
 
 namespace aware
@@ -25,12 +27,14 @@ namespace aware
 namespace avahi
 {
 
-class announce_socket : public aware::announce_socket
+class announce_socket
+    : public aware::announce_socket,
+      public boost::asio::basic_io_object<avahi::service>
 {
 public:
     typedef boost::function<void (const boost::system::error_code&)> async_announce_handler;
 
-    announce_socket(aware::avahi::io_service&);
+    announce_socket(boost::asio::io_service&);
 
     void async_announce(const aware::contact& contact,
                         async_announce_handler);

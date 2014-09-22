@@ -36,21 +36,21 @@ class monitor
     typedef aware::monitor_socket::async_listen_handler handler_type;
 
 public:
-    monitor(aware::avahi::io_service& io,
+    monitor(boost::asio::io_service& io,
             const aware::contact& contact)
         : contact(contact)
     {
-        browser = boost::make_shared<detail::browser>(io.get_client(),
-                                                             contact,
-                                                             boost::bind(&monitor::on_join,
-                                                                         this,
-                                                                         _1),
-                                                             boost::bind(&monitor::on_leave,
-                                                                         this,
-                                                                         _1),
-                                                             boost::bind(&monitor::on_failure,
-                                                                         this,
-                                                                         _1));
+        browser = boost::make_shared<detail::browser>(boost::asio::use_service<avahi::service>(io).get_client(),
+                                                      contact,
+                                                      boost::bind(&monitor::on_join,
+                                                                  this,
+                                                                  _1),
+                                                      boost::bind(&monitor::on_leave,
+                                                                  this,
+                                                                  _1),
+                                                      boost::bind(&monitor::on_failure,
+                                                                  this,
+                                                                  _1));
     }
 
     //! @pre Must be called from an io_service thread
@@ -105,8 +105,8 @@ private:
 
 } // namespace detail
 
-monitor_socket::monitor_socket(aware::avahi::io_service& io)
-    : io(io)
+monitor_socket::monitor_socket(boost::asio::io_service& io)
+    : boost::asio::basic_io_object<avahi::service>(io)
 {
 }
 
@@ -115,10 +115,10 @@ void monitor_socket::async_listen(const aware::contact& contact,
 {
     // Perform from io_service thread because the constructor of
     // detail::browser will invoke the first callback
-    io.post(boost::bind(&monitor_socket::do_async_listen,
-                        this,
-                        contact,
-                        handler));
+    get_io_service().post(boost::bind(&monitor_socket::do_async_listen,
+                                      this,
+                                      contact,
+                                      handler));
 }
 
 void monitor_socket::do_async_listen(const aware::contact& contact,
@@ -130,7 +130,7 @@ void monitor_socket::do_async_listen(const aware::contact& contact,
     {
         where = monitors.insert(where,
                                 monitor_map::value_type(key,
-                                                        boost::make_shared<aware::avahi::detail::monitor>(boost::ref(io), contact)));
+                                                        boost::make_shared<aware::avahi::detail::monitor>(boost::ref(get_io_service()), contact)));
     }
     assert(where != monitors.end());
     where->second->prepare(handler);

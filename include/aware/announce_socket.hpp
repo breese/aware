@@ -14,7 +14,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <boost/function.hpp>
-#include <aware/io_service.hpp>
 #include <aware/contact.hpp>
 
 namespace aware
@@ -26,7 +25,7 @@ public:
     typedef boost::function<void (const boost::system::error_code&)> async_announce_handler;
 
     virtual void async_announce(const aware::contact& contact,
-                        async_announce_handler) = 0;
+                                async_announce_handler) = 0;
 };
 
 } // namespace aware

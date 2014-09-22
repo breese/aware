@@ -12,14 +12,14 @@
 
 #include <boost/bind.hpp>
 #include <boost/asio/placeholders.hpp>
-#include <aware/avahi/io_service.hpp>
+#include <boost/asio/io_service.hpp>
 #include <aware/contact.hpp>
 #include <aware/avahi/monitor_socket.hpp>
 
 class my_monitor
 {
 public:
-    my_monitor(aware::avahi::io_service& io)
+    my_monitor(boost::asio::io_service& io)
         : socket(io)
     {}
 
@@ -73,8 +73,7 @@ int main(int argc, char *argv[])
 {
     aware::contact contact("", "announce");
     boost::asio::io_service io;
-    aware::avahi::io_service aio(io);
-    my_monitor monitor(aio);
+    my_monitor monitor(io);
     monitor.async_listen(contact);
     io.run();
     return 0;

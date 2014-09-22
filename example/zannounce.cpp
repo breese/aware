@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
+#include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
-#include <aware/avahi/io_service.hpp>
 #include <aware/contact.hpp>
 #include <aware/avahi/announce_socket.hpp>
 
@@ -17,8 +17,7 @@ int main(int argc, char *argv[])
     boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), 3834);
     aware::contact contact("This is an announcement", "announce", endpoint, properties);
     boost::asio::io_service io;
-    aware::avahi::io_service aio(io);
-    aware::avahi::announce_socket announcer(aio);
+    aware::avahi::announce_socket announcer(io);
     announcer.async_announce(contact, announced);
     io.run();
     return 0;

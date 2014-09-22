@@ -21,14 +21,12 @@ namespace aware
 
 class announce_socket;
 class monitor_socket;
-class io_service;
 
 class factory
 {
 public:
-    virtual boost::shared_ptr<aware::io_service> make_service(boost::asio::io_service&) =0;
-    virtual boost::shared_ptr<announce_socket> make_announce(aware::io_service&) = 0;
-    virtual boost::shared_ptr<monitor_socket> make_monitor(aware::io_service&) = 0;
+    virtual boost::shared_ptr<announce_socket> make_announce(boost::asio::io_service&) = 0;
+    virtual boost::shared_ptr<monitor_socket> make_monitor(boost::asio::io_service&) = 0;
 
 };
 

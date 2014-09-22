@@ -88,17 +88,6 @@ set(LIBRARY_OUTPUT_PATH lib)
 
 set(AWARE_SRC
   src/contact.cpp
-  src/detail/native_socket.cpp
-)
-
-set(AWARE_AVAHI_SOURCE
-  src/avahi/monitor_socket.cpp
-  src/avahi/announce_socket.cpp
-  src/avahi/detail/announcer.cpp
-  src/avahi/detail/browser.cpp
-  src/avahi/detail/client.cpp
-  src/avahi/detail/error.cpp
-  src/avahi/detail/poller.cpp
 )
 
 set(AWARE_ANDROID_SOURCE
@@ -108,8 +97,10 @@ set(AWARE_ANDROID_SOURCE
   src/detail/android/poller.cpp
 )
 
+add_subdirectory(src/detail)
+
 if(AWARE_BACKEND STREQUAL "avahi")
-    list(APPEND AWARE_SRC ${AWARE_AVAHI_SOURCE})
+  add_subdirectory(src/avahi)
 elseif(AWARE_BACKEND STREQUAL "android")
     list(APPEND AWARE_SRC ${AWARE_ANDROID_SOURCE})
 else()
@@ -118,7 +109,7 @@ endif()
 
 add_library(aware STATIC ${AWARE_SRC})
 
-target_link_libraries(aware ${EXTRA_LIBS})
+target_link_libraries(aware aware-backend aware-detail ${EXTRA_LIBS})
 
 ###############################################################################
 # Examples
@@ -135,3 +126,9 @@ add_executable(zmonitor
 )
 set_target_properties(zmonitor PROPERTIES RUNTIME_OUTPUT_DIRECTORY bin)
 target_link_libraries(zmonitor aware)
+
+add_executable(readme
+  example/readme.cpp
+)
+set_target_properties(readme PROPERTIES RUNTIME_OUTPUT_DIRECTORY bin)
+target_link_libraries(readme aware)

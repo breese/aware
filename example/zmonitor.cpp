@@ -10,6 +10,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <iostream>
 #include <boost/bind.hpp>
 #include <boost/asio/placeholders.hpp>
 #include <boost/asio/io_service.hpp>
@@ -36,32 +37,29 @@ private:
     void process_listen(const boost::system::error_code& error,
                         const aware::contact& contact)
     {
-        switch (error.value())
+        if (!error)
         {
-        case 0:
+            std::cout << "Entry:" << std::endl;
+            std::cout << "  name = " << contact.get_name() << std::endl;
+            std::cout << "  type = " << contact.get_type() << std::endl;
+            std::cout << "  endpoint = " << contact.get_endpoint() << std::endl;
+            aware::contact::property_map_type properties = contact.get_properties();
+            for (aware::contact::property_map_type::const_iterator it = properties.begin();
+                 it != properties.end();
+                 ++it)
             {
-                std::cout << "Entry:" << std::endl;
-                std::cout << "  name = " << contact.get_name() << std::endl;
-                std::cout << "  type = " << contact.get_type() << std::endl;
-                std::cout << "  endpoint = " << contact.get_endpoint() << std::endl;
-                aware::contact::property_map_type properties = contact.get_properties();
-                for (aware::contact::property_map_type::const_iterator it = properties.begin();
-                     it != properties.end();
-                     ++it)
-                {
-                    std::cout << "  " << it->first << " = " << it->second << std::endl;
-                }
-                // Launch the next listen
-                async_listen(contact);
+                std::cout << "  " << it->first << " = " << it->second << std::endl;
             }
-            break;
-
-        case boost::asio::error::operation_aborted:
-            break;
-
-        default:
+            // Launch the next listen
+            async_listen(contact);
+        }
+        else if (error == boost::asio::error::operation_aborted)
+        {
+            // Ignore
+        }
+        else
+        {
             std::cout << "Error = " << error << std::endl;
-            break;
         }
     }
 

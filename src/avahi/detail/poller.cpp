@@ -71,21 +71,19 @@ struct AvahiWatch
     void process_read(const boost::system::error_code& error,
                       std::size_t bytes_transferred)
     {
-        switch (error.value())
+        if (!error)
         {
-        case 0:
             revents = (AvahiWatchEvent)(revents | AVAHI_WATCH_IN);
             callback(this, socket.native_handle(), AVAHI_WATCH_IN, userdata);
             start_read();
-            break;
-
-        case boost::asio::error::operation_aborted:
+        }
+        else if (error == boost::asio::error::operation_aborted)
+        {
             // We are closing down
-            break;
-
-        default:
+        }
+        else
+        {
             // FIXME
-            break;
         }
     }
 
@@ -101,21 +99,19 @@ struct AvahiWatch
     void process_write(const boost::system::error_code& error,
                        std::size_t bytes_transferred)
     {
-        switch (error.value())
+        if (!error)
         {
-        case 0:
             revents = (AvahiWatchEvent)(revents | AVAHI_WATCH_OUT);
             callback(this, socket.native_handle(), AVAHI_WATCH_OUT, userdata);
             start_write();
-            break;
-
-        case boost::asio::error::operation_aborted:
+        }
+        else if (error == boost::asio::error::operation_aborted)
+        {
             // We are closing down
-            break;
-
-        default:
+        }
+        else
+        {
             // FIXME
-            break;
         }
     }
 
@@ -242,19 +238,17 @@ public:
 
     void process_timeout(const boost::system::error_code& error)
     {
-        switch (error.value())
+        if (!error)
         {
-        case 0:
             callback(resource, userdata);
-            break;
-
-        case boost::asio::error::operation_aborted:
+        }
+        else if (error == boost::asio::error::operation_aborted)
+        {
             // We are closing down
-            break;
-
-        default:
+        }
+        else
+        {
             // FIXME
-            break;
         }
     }
 

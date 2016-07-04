@@ -34,7 +34,9 @@ public:
 
     operator AvahiClient *() const { return ptr; }
 
-    // These are internal functions
+private:
+    struct wrapper;
+
     void registering(AvahiClient *);
     void connecting(AvahiClient *);
     void running(AvahiClient *);

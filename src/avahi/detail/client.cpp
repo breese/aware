@@ -17,41 +17,44 @@
 #include <aware/avahi/detail/poller.hpp>
 #include <aware/avahi/detail/client.hpp>
 
-extern "C"
-void avahi_client_callback(AvahiClient *client,
-                           AvahiClientState state,
-                           void *userdata)
-{
-    aware::avahi::detail::client *self = static_cast<aware::avahi::detail::client *>(userdata);
-
-    switch (state)
-    {
-    case AVAHI_CLIENT_S_REGISTERING:
-        self->registering(client);
-        break;
-    case AVAHI_CLIENT_S_RUNNING:
-        self->running(client);
-        break;
-    case AVAHI_CLIENT_S_COLLISION:
-        self->collision(client);
-        break;
-    case AVAHI_CLIENT_FAILURE:
-        self->failure(client);
-        break;
-    case AVAHI_CLIENT_CONNECTING:
-        self->connecting(client);
-        break;
-    default:
-        break;
-    }
-}
-
 namespace aware
 {
 namespace avahi
 {
 namespace detail
 {
+
+struct client::wrapper
+{
+
+    static void client_callback(AvahiClient *client,
+                                AvahiClientState state,
+                                void *userdata)
+    {
+        aware::avahi::detail::client *self = static_cast<aware::avahi::detail::client *>(userdata);
+
+        switch (state)
+        {
+        case AVAHI_CLIENT_S_REGISTERING:
+            self->registering(client);
+            break;
+        case AVAHI_CLIENT_S_RUNNING:
+            self->running(client);
+            break;
+        case AVAHI_CLIENT_S_COLLISION:
+            self->collision(client);
+            break;
+        case AVAHI_CLIENT_FAILURE:
+            self->failure(client);
+            break;
+        case AVAHI_CLIENT_CONNECTING:
+            self->connecting(client);
+            break;
+        default:
+            break;
+        }
+    }
+};
 
 client::client(aware::avahi::detail::poller& poller)
     : ptr(0)
@@ -60,7 +63,7 @@ client::client(aware::avahi::detail::poller& poller)
     // This will trigger the running() callback before ptr is set here
     ptr = avahi_client_new(reinterpret_cast<AvahiPoll *>(&poller),
                            flags,
-                           avahi_client_callback,
+                           wrapper::client_callback,
                            this,
                            0);
     if (ptr == 0)

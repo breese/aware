@@ -30,7 +30,7 @@ namespace avahi
 namespace detail
 {
 
-class monitor
+class monitor : public browser::listener
 {
     typedef std::pair<boost::system::error_code, aware::contact> response_type;
     typedef aware::monitor_socket::async_listen_handler handler_type;
@@ -40,17 +40,10 @@ public:
             aware::contact& contact)
         : contact(contact)
     {
-        browser = boost::make_shared<detail::browser>(boost::asio::use_service<avahi::service>(io).get_client(),
-                                                      contact,
-                                                      boost::bind(&monitor::on_join,
-                                                                  this,
-                                                                  _1),
-                                                      boost::bind(&monitor::on_leave,
-                                                                  this,
-                                                                  _1),
-                                                      boost::bind(&monitor::on_failure,
-                                                                  this,
-                                                                  _1));
+        browser = boost::make_shared<detail::browser>(
+            boost::asio::use_service<avahi::service>(io).get_client(),
+            contact,
+            boost::ref(*this));
     }
 
     //! @pre Must be called from an io_service thread
@@ -76,21 +69,21 @@ public:
         handlers.pop();
     }
 
-    void on_join(const aware::contact& contact)
+    virtual void on_appear(const aware::contact& contact)
     {
         boost::system::error_code success;
         responses.push(std::make_pair(success, contact));
         perform();
     }
 
-    void on_leave(const aware::contact& contact)
+    virtual void on_disappear(const aware::contact& contact)
     {
         boost::system::error_code success;
         responses.push(std::make_pair(success, contact));
         perform();
     }
 
-    void on_failure(const boost::system::error_code& error)
+    virtual void on_failure(const boost::system::error_code& error)
     {
         aware::contact no_contact;
         responses.push(std::make_pair(error, no_contact));

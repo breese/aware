@@ -13,7 +13,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <boost/function.hpp>
 #include <boost/system/error_code.hpp>
 #include <aware/contact.hpp>
 #include <aware/avahi/detail/client.hpp>
@@ -31,23 +30,26 @@ class client;
 class browser
 {
 public:
-    typedef boost::function<void (const aware::contact&)> join_type;
-    typedef boost::function<void (const aware::contact&)> leave_type;
-    typedef boost::function<void (const boost::system::error_code&)> failure_type;
+    class listener
+    {
+    public:
+        virtual ~listener() {}
+
+        virtual void on_appear(const aware::contact&) = 0;
+        virtual void on_disappear(const aware::contact&) = 0;
+        virtual void on_failure(const boost::system::error_code&) = 0;
+    };
 
     browser(const aware::avahi::detail::client&,
             const aware::contact& contact,
-            join_type,
-            leave_type,
-            failure_type);
+            browser::listener&);
     ~browser();
 
 private:
+    struct wrapper;
+
+    browser::listener& listener;
     AvahiServiceBrowser *ptr;
-public:
-    join_type on_join;
-    leave_type on_leave;
-    failure_type on_failure;
 };
 
 } // namespace detail

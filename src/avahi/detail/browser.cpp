@@ -61,138 +61,127 @@ std::string extract_type(const char *type)
   return std::string(beginning, ending);
 }
 
-} // namespace detail
-} // namespace avahi
-} // namespace aware
-
-extern "C"
-void aware_avahi_resolver_callback(AvahiServiceResolver *resolver,
-                                   AvahiIfIndex interface,
-                                   AvahiProtocol protocol,
-                                   AvahiResolverEvent event,
-                                   const char *name,
-                                   const char *full_type,
-                                   const char *domain,
-                                   const char *host_name,
-                                   const AvahiAddress *address,
-                                   unsigned short port,
-                                   AvahiStringList *txt,
-                                   AvahiLookupResultFlags,
-                                   void *userdata)
+struct browser::wrapper
 {
-    aware::avahi::detail::browser *self = static_cast<aware::avahi::detail::browser *>(userdata);
-
-    if (event == AVAHI_RESOLVER_FOUND)
+    static void resolver_callback(
+        AvahiServiceResolver *resolver,
+        AvahiIfIndex interface,
+        AvahiProtocol protocol,
+        AvahiResolverEvent event,
+        const char *name,
+        const char *full_type,
+        const char *domain,
+        const char *host_name,
+        const AvahiAddress *address,
+        unsigned short port,
+        AvahiStringList *txt,
+        AvahiLookupResultFlags,
+        void *userdata)
     {
-        // Convert txt record to property map
-        aware::contact::property_map_type properties;
-        for (; txt != 0; txt = avahi_string_list_get_next(txt))
+        aware::avahi::detail::browser *self = static_cast<aware::avahi::detail::browser *>(userdata);
+
+        if (event == AVAHI_RESOLVER_FOUND)
         {
-            char *key;
-            char *value;
-            if (avahi_string_list_get_pair(txt, &key, &value, 0) == AVAHI_OK)
+            // Convert txt record to property map
+            aware::contact::property_map_type properties;
+            for (; txt != 0; txt = avahi_string_list_get_next(txt))
             {
-                properties[key] = value;
-                avahi_free(key);
-                avahi_free(value);
+                char *key;
+                char *value;
+                if (avahi_string_list_get_pair(txt, &key, &value, 0) == AVAHI_OK)
+                {
+                    properties[key] = value;
+                    avahi_free(key);
+                    avahi_free(value);
+                }
             }
+            // Notify requester
+            boost::asio::ip::tcp::endpoint endpoint(aware::avahi::detail::to_address(*address),
+                                                    port);
+            std::string type = aware::avahi::detail::extract_type(full_type);
+            aware::contact contact(name, type, endpoint, properties);
+            self->listener.on_appear(contact);
         }
-        // Notify requester
-        boost::asio::ip::tcp::endpoint endpoint(aware::avahi::detail::to_address(*address),
-                                                port);
-        std::string type = aware::avahi::detail::extract_type(full_type);
-        aware::contact contact(name, type, endpoint, properties);
-        self->on_join(contact);
-    }
-    else
-    {
-        boost::system::error_code error(avahi_client_errno(avahi_service_resolver_get_client(resolver)),
-                                        boost::system::system_category());
-        self->on_failure(error);
-    }
-    avahi_service_resolver_free(resolver);
-}
-
-extern "C"
-void aware_avahi_browser_callback(AvahiServiceBrowser *browser,
-                                  AvahiIfIndex interface,
-                                  AvahiProtocol protocol,
-                                  AvahiBrowserEvent event,
-                                  const char *name,
-                                  const char *full_type,
-                                  const char *domain,
-                                  AvahiLookupResultFlags,
-                                  void *userdata)
-{
-    aware::avahi::detail::browser *self = static_cast<aware::avahi::detail::browser *>(userdata);
-
-    switch (event)
-    {
-    case AVAHI_BROWSER_FAILURE:
+        else
         {
-            boost::system::error_code error(avahi_client_errno(avahi_service_browser_get_client(browser)),
+            boost::system::error_code error(avahi_client_errno(avahi_service_resolver_get_client(resolver)),
                                             boost::system::system_category());
-            self->on_failure(error);
+            self->listener.on_failure(error);
         }
-        break;
+        avahi_service_resolver_free(resolver);
+    }
 
-    case AVAHI_BROWSER_NEW:
+    static void browser_callback(
+        AvahiServiceBrowser *browser,
+        AvahiIfIndex interface,
+        AvahiProtocol protocol,
+        AvahiBrowserEvent event,
+        const char *name,
+        const char *full_type,
+        const char *domain,
+        AvahiLookupResultFlags,
+        void *userdata)
+    {
+        aware::avahi::detail::browser *self = static_cast<aware::avahi::detail::browser *>(userdata);
+
+        switch (event)
         {
-            // Use resolver to obtain port and properties
-            AvahiServiceResolver *resolver = avahi_service_resolver_new(avahi_service_browser_get_client(browser),
-                                                                        interface,
-                                                                        protocol,
-                                                                        name,
-                                                                        full_type,
-                                                                        domain,
-                                                                        AVAHI_PROTO_UNSPEC,
-                                                                        AvahiLookupFlags(0),
-                                                                        aware_avahi_resolver_callback,
-                                                                        userdata);
-            if (!resolver)
+        case AVAHI_BROWSER_FAILURE:
             {
                 boost::system::error_code error(avahi_client_errno(avahi_service_browser_get_client(browser)),
                                                 boost::system::system_category());
-                self->on_failure(error);
+                self->listener.on_failure(error);
             }
-            // resolver is freed in the callback
+            break;
+
+        case AVAHI_BROWSER_NEW:
+            {
+                // Use resolver to obtain port and properties
+                AvahiServiceResolver *resolver = avahi_service_resolver_new(
+                    avahi_service_browser_get_client(browser),
+                    interface,
+                    protocol,
+                    name,
+                    full_type,
+                    domain,
+                    AVAHI_PROTO_UNSPEC,
+                    AvahiLookupFlags(0),
+                    wrapper::resolver_callback,
+                    userdata);
+                if (!resolver)
+                {
+                    boost::system::error_code error(avahi_client_errno(avahi_service_browser_get_client(browser)),
+                                                    boost::system::system_category());
+                    self->listener.on_failure(error);
+                }
+                // resolver is freed in the callback
+            }
+            break;
+
+        case AVAHI_BROWSER_REMOVE:
+            {
+                std::string type = aware::avahi::detail::extract_type(full_type);
+                aware::contact contact(name, type);
+                self->listener.on_disappear(contact);
+            }
+            break;
+
+        case AVAHI_BROWSER_CACHE_EXHAUSTED:
+            break;
+
+        case AVAHI_BROWSER_ALL_FOR_NOW:
+            break;
+
+        default:
+            break;
         }
-        break;
-
-    case AVAHI_BROWSER_REMOVE:
-        {
-            std::string type = aware::avahi::detail::extract_type(full_type);
-            aware::contact contact(name, type);
-            self->on_leave(contact);
-        }
-        break;
-
-    case AVAHI_BROWSER_CACHE_EXHAUSTED:
-        break;
-
-    case AVAHI_BROWSER_ALL_FOR_NOW:
-        break;
-
-    default:
-        break;
     }
-}
-
-namespace aware
-{
-namespace avahi
-{
-namespace detail
-{
+};
 
 browser::browser(const aware::avahi::detail::client& client,
                  const aware::contact& contact,
-                 join_type on_join,
-                 leave_type on_leave,
-                 failure_type on_failure)
-    : on_join(on_join),
-      on_leave(on_leave),
-      on_failure(on_failure)
+                 typename browser::listener& listener)
+    : listener(listener)
 {
     const AvahiProtocol protocol =
         contact.get_endpoint().protocol() == boost::asio::ip::tcp::v6()
@@ -205,7 +194,7 @@ browser::browser(const aware::avahi::detail::client& client,
                                     type.c_str(),
                                     NULL,
                                     AvahiLookupFlags(0),
-                                    aware_avahi_browser_callback,
+                                    wrapper::browser_callback,
                                     this);
     if (ptr == 0)
         throw std::bad_alloc();

@@ -42,13 +42,12 @@ public:
     void async_announce(const aware::contact&,
                         async_announce_handler);
 
-    // These are internal functions
-    void on_established(AvahiEntryGroup *);
-    void on_collision(AvahiEntryGroup *);
-    void on_failure(AvahiEntryGroup *);
+private:
     void commit(AvahiEntryGroup *);
 
 private:
+    struct wrapper;
+
     AvahiEntryGroup *ptr;
     async_announce_handler handler;
 };

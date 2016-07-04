@@ -22,38 +22,49 @@
 #include <aware/avahi/detail/client.hpp>
 #include <aware/avahi/detail/announcer.hpp>
 
-extern "C"
-void avahi_entry_group_callback(AvahiEntryGroup *group,
-                                AvahiEntryGroupState state,
-                                void *userdata)
-{
-    aware::avahi::detail::announcer *self = static_cast<aware::avahi::detail::announcer *>(userdata);
-
-    switch (state)
-    {
-    case AVAHI_ENTRY_GROUP_ESTABLISHED:
-        self->on_established(group);
-        break;
-
-    case AVAHI_ENTRY_GROUP_COLLISION:
-        self->on_collision(group);
-        break;
-
-    case AVAHI_ENTRY_GROUP_FAILURE:
-        self->on_failure(group);
-        break;
-
-    default:
-        break;
-    }
-}
-
 namespace aware
 {
 namespace avahi
 {
 namespace detail
 {
+
+//-----------------------------------------------------------------------------
+// announcer::wrapper
+//-----------------------------------------------------------------------------
+
+struct announcer::wrapper
+{
+    static void entry_group_callback(AvahiEntryGroup *group,
+                                     AvahiEntryGroupState state,
+                                     void *userdata)
+    {
+        aware::avahi::detail::announcer *self = static_cast<aware::avahi::detail::announcer *>(userdata);
+
+        switch (state)
+        {
+        case AVAHI_ENTRY_GROUP_ESTABLISHED:
+            {
+                boost::system::error_code success;
+                self->handler(success);
+            }
+            break;
+
+        case AVAHI_ENTRY_GROUP_COLLISION:
+        case AVAHI_ENTRY_GROUP_FAILURE:
+            {
+                boost::system::error_code error(
+                    avahi_client_errno(avahi_entry_group_get_client(group)),
+                    boost::system::system_category());
+                self->handler(error);
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
+};
 
 //-----------------------------------------------------------------------------
 // property_list
@@ -105,7 +116,7 @@ announcer::announcer(const aware::avahi::detail::client& client)
     : ptr(0)
 {
     ptr = avahi_entry_group_new(client,
-                                avahi_entry_group_callback,
+                                wrapper::entry_group_callback,
                                 this);
     if (ptr == 0)
         throw std::bad_alloc();
@@ -204,24 +215,6 @@ void announcer::commit(AvahiEntryGroup *group)
             handler(convert_error(rc));
         }
     }
-}
-
-void announcer::on_established(AvahiEntryGroup *group)
-{
-    boost::system::error_code success;
-    handler(success);
-}
-
-void announcer::on_collision(AvahiEntryGroup *group)
-{
-    // FIXME
-}
-
-void announcer::on_failure(AvahiEntryGroup *group)
-{
-    boost::system::error_code error(avahi_client_errno(avahi_entry_group_get_client(group)),
-                                    boost::system::system_category());
-    handler(error);
 }
 
 } // namespace avahi

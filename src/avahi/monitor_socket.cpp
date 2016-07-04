@@ -37,7 +37,7 @@ class monitor
 
 public:
     monitor(boost::asio::io_service& io,
-            const aware::contact& contact)
+            aware::contact& contact)
         : contact(contact)
     {
         browser = boost::make_shared<detail::browser>(boost::asio::use_service<avahi::service>(io).get_client(),
@@ -70,7 +70,8 @@ public:
 
         const response_type& response = responses.front();
         handler_type& handler = handlers.front();
-        handler(response.first, response.second);
+        contact = response.second;
+        handler(response.first);
         responses.pop();
         handlers.pop();
     }
@@ -97,7 +98,7 @@ public:
     }
 
 private:
-    aware::contact contact;
+    aware::contact& contact;
     boost::shared_ptr<detail::browser> browser;
     std::queue<response_type> responses;
     std::queue<handler_type> handlers;
@@ -110,27 +111,31 @@ monitor_socket::monitor_socket(boost::asio::io_service& io)
 {
 }
 
-void monitor_socket::async_listen(const aware::contact& contact,
+void monitor_socket::async_listen(aware::contact& contact,
                                   async_listen_handler handler)
 {
     // Perform from io_service thread because the constructor of
     // detail::browser will invoke the first callback
     get_io_service().post(boost::bind(&monitor_socket::do_async_listen,
                                       this,
-                                      contact,
+                                      boost::ref(contact),
                                       handler));
 }
 
-void monitor_socket::do_async_listen(const aware::contact& contact,
+void monitor_socket::do_async_listen(aware::contact& contact,
                                      async_listen_handler handler)
 {
     const std::string& key = contact.get_type();
     monitor_map::iterator where = monitors.lower_bound(key);
     if ((where == monitors.end()) || (monitors.key_comp()(key, where->first)))
     {
-        where = monitors.insert(where,
-                                monitor_map::value_type(key,
-                                                        boost::make_shared<aware::avahi::detail::monitor>(boost::ref(get_io_service()), contact)));
+        where = monitors.insert(
+            where,
+            monitor_map::value_type(
+                key,
+                boost::make_shared<aware::avahi::detail::monitor>(
+                    boost::ref(get_io_service()),
+                    boost::ref(contact))));
     }
     assert(where != monitors.end());
     where->second->prepare(handler);

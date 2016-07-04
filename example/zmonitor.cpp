@@ -24,18 +24,18 @@ public:
         : socket(io)
     {}
 
-    void async_listen(const aware::contact& contact)
+    void async_listen(aware::contact& contact)
     {
         socket.async_listen(contact,
                             boost::bind(&my_monitor::process_listen,
                                         this,
                                         boost::asio::placeholders::error,
-                                        _2));
+                                        boost::ref(contact)));
     }
 
 private:
     void process_listen(const boost::system::error_code& error,
-                        const aware::contact& contact)
+                        aware::contact& contact)
     {
         if (!error)
         {

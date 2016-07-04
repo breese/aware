@@ -39,16 +39,13 @@ class monitor_socket
     typedef std::map<std::string, monitor_ptr> monitor_map;
 
 public:
-    typedef boost::function<void (const boost::system::error_code&,
-                                  const aware::contact&)> async_listen_handler;
-
     monitor_socket(boost::asio::io_service& io);
 
-    void async_listen(const aware::contact& contact,
+    void async_listen(aware::contact& contact,
                       async_listen_handler handler);
 
 private:
-    void do_async_listen(const aware::contact&, async_listen_handler);
+    void do_async_listen(aware::contact&, async_listen_handler);
 
 private:
     monitor_map monitors; // FIXME: thread-safety

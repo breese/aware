@@ -6,7 +6,7 @@
 #include <aware/avahi/monitor_socket.hpp>
 
 void AwareHandler(const boost::system::error_code& error,
-                  const aware::contact& contact,
+                  aware::contact& contact,
                   aware::monitor_socket& socket)
 {
     // The device described by contact has joined or left the network
@@ -15,7 +15,7 @@ void AwareHandler(const boost::system::error_code& error,
     socket.async_listen(contact,
                         boost::bind(AwareHandler,
                                     _1,
-                                    _2,
+                                    boost::ref(contact),
                                     boost::ref(socket)));
 }
 
@@ -28,7 +28,7 @@ int main()
     socket.async_listen(contact,
                         boost::bind(AwareHandler,
                                     _1,
-                                    _2,
+                                    boost::ref(contact),
                                     boost::ref(socket)));
     io.run();
     return 0;

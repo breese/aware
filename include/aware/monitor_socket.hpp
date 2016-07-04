@@ -25,10 +25,11 @@ namespace detail { class monitor; }
 class monitor_socket
 {
 public:
-    typedef boost::function<void (const boost::system::error_code&,
-                                  const aware::contact&)> async_listen_handler;
+    typedef boost::function<void (const boost::system::error_code&)> async_listen_handler;
 
-    virtual void async_listen(const aware::contact& contact,
+    virtual ~monitor_socket() {}
+
+    virtual void async_listen(aware::contact& contact,
                               async_listen_handler handler) = 0;
 };
 

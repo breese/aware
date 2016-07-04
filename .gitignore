@@ -1,7 +1,9 @@
-.gitignore
-*~
 bin
 lib
+*~
+*.diff
+
+# CMake
 CMakeFiles
 CMakeCache.txt
 Makefile

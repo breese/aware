@@ -30,6 +30,7 @@ native_socket::~native_socket()
   {
     boost::system::error_code dummy; // Ignore errors
     socket.close(dummy);
+    socket.release();
   }
 }
 

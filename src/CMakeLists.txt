@@ -10,5 +10,6 @@ set(AWARE_SOURCE
   ${AWARE_BACKEND_SOURCE}
   src/contact.cpp
   src/detail/native_socket.cpp
+  src/detail/utility.cpp
   PARENT_SCOPE
 )

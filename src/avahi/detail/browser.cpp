@@ -16,6 +16,7 @@
 #include <avahi-common/error.h>
 #include <avahi-common/malloc.h>
 #include <avahi-client/lookup.h>
+#include <aware/detail/utility.hpp>
 #include <aware/avahi/detail/client.hpp>
 #include <aware/avahi/detail/browser.hpp>
 
@@ -41,24 +42,6 @@ boost::asio::ip::address to_address(const AvahiAddress& addr)
         assert(false);
         break;
     }
-}
-
-// Extract "type" from a "_type._tcp" string.
-// Returns empty string if a parse error occurred.
-std::string extract_type(const char *type)
-{
-  const char *beginning = type;
-  const char *ending = type;
-  if (*beginning == '_')
-  {
-    ++beginning;
-    ending = std::strchr(beginning, '.');
-    if (ending == 0)
-    {
-      ending = beginning;
-    }
-  }
-  return std::string(beginning, ending);
 }
 
 struct browser::wrapper
@@ -98,7 +81,7 @@ struct browser::wrapper
             // Notify requester
             boost::asio::ip::tcp::endpoint endpoint(aware::avahi::detail::to_address(*address),
                                                     port);
-            std::string type = aware::avahi::detail::extract_type(full_type);
+            std::string type = aware::detail::type_decode(full_type);
             aware::contact contact(name, type, endpoint, properties);
             self->listener.on_appear(contact);
         }
@@ -160,7 +143,7 @@ struct browser::wrapper
 
         case AVAHI_BROWSER_REMOVE:
             {
-                std::string type = aware::avahi::detail::extract_type(full_type);
+                std::string type = aware::detail::type_decode(full_type);
                 aware::contact contact(name, type);
                 self->listener.on_disappear(contact);
             }
@@ -187,7 +170,7 @@ browser::browser(const aware::avahi::detail::client& client,
         contact.get_endpoint().protocol() == boost::asio::ip::tcp::v6()
         ? AVAHI_PROTO_INET6
         : AVAHI_PROTO_INET;
-    std::string type = "_" + contact.get_type() + "._tcp";
+    std::string type = aware::detail::type_encode(contact.get_type());
     ptr = avahi_service_browser_new(client,
                                     AVAHI_IF_UNSPEC,
                                     protocol,

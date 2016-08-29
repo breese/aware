@@ -18,6 +18,7 @@
 #include <avahi-common/malloc.h>
 #include <avahi-client/publish.h>
 #include <avahi-client/client.h>
+#include <aware/detail/utility.hpp>
 #include <aware/avahi/detail/error.hpp>
 #include <aware/avahi/detail/client.hpp>
 #include <aware/avahi/detail/announcer.hpp>
@@ -149,8 +150,7 @@ void announcer::async_announce(const aware::contact& contact,
         ? AVAHI_PROTO_INET6
         : AVAHI_PROTO_INET;
     std::string name = contact.get_name();
-    // FIXME: from contact (endpoint.protocol())
-    std::string type = "_" + contact.get_type() + "._tcp";
+    std::string type = aware::detail::type_encode(contact.get_type());
     // Use .local
     const char *domain = 0;
     // Host name

@@ -1,12 +1,11 @@
-project(aware-avahi)
-
-add_library(aware-backend STATIC
-  service.cpp
-  monitor_socket.cpp
-  announce_socket.cpp
-  detail/announcer.cpp
-  detail/browser.cpp
-  detail/client.cpp
-  detail/error.cpp
-  detail/poller.cpp
+set(AWARE_BACKEND_SOURCE
+  src/avahi/service.cpp
+  src/avahi/monitor_socket.cpp
+  src/avahi/announce_socket.cpp
+  src/avahi/detail/announcer.cpp
+  src/avahi/detail/browser.cpp
+  src/avahi/detail/client.cpp
+  src/avahi/detail/error.cpp
+  src/avahi/detail/poller.cpp
+  PARENT_SCOPE
 )

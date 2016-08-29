@@ -49,7 +49,7 @@ int main()
 }
 ```
 
-Building aware
+Building aware with [Avahi](http://avahi.org/) backend
 --------------
 
 1. Make sure [CMake](http://cmake.org/) is installed.
@@ -67,10 +67,10 @@ Building aware
 5. Run the examples
 
    ```bash
-   bin/zmonitor
+   bin/avahi_monitor
    ```
    and from another shell:
 
    ```bash
-   bin/zannounce
+   bin/avahi_announce
    ```

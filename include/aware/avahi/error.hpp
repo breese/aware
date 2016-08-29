@@ -1,11 +1,8 @@
-#ifndef AWARE_DETAIL_AVAHI_ERROR_HPP
-#define AWARE_DETAIL_AVAHI_ERROR_HPP
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // http://github.com/breese/aware
 //
-// Copyright (C) 2013 Bjorn Reese <breese@users.sourceforge.net>
+// Copyright (C) 2016 Bjorn Reese <breese@users.sourceforge.net>
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -13,19 +10,22 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <boost/asio/error.hpp>
+#include <boost/system/error_code.hpp>
 
 namespace aware
 {
 namespace avahi
 {
-namespace detail
+namespace error
 {
 
-boost::system::error_code convert_error(int error);
+const boost::system::error_category& category();
 
-} // namespace detail
+inline boost::system::error_code make_error_code(int e)
+{
+    return boost::system::error_code(e, avahi::error::category());
+}
+
+} // namespace error
 } // namespace avahi
 } // namespace aware
-
-#endif // AWARE_DETAIL_AVAHI_ERROR_HPP

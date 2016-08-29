@@ -11,15 +11,15 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
-#include <new> // std::bad_alloc
 #include <avahi-common/error.h>
 #include <avahi-common/strlst.h>
 #include <avahi-common/alternative.h>
 #include <avahi-common/malloc.h>
 #include <avahi-client/publish.h>
 #include <avahi-client/client.h>
+#include <boost/system/system_error.hpp>
 #include <aware/detail/utility.hpp>
-#include <aware/avahi/detail/error.hpp>
+#include <aware/avahi/error.hpp>
 #include <aware/avahi/detail/client.hpp>
 #include <aware/avahi/detail/announcer.hpp>
 
@@ -54,10 +54,7 @@ struct announcer::wrapper
         case AVAHI_ENTRY_GROUP_COLLISION:
         case AVAHI_ENTRY_GROUP_FAILURE:
             {
-                boost::system::error_code error(
-                    avahi_client_errno(avahi_entry_group_get_client(group)),
-                    boost::system::system_category());
-                self->handler(error);
+                self->handler(avahi::error::make_error_code(avahi_client_errno(avahi_entry_group_get_client(group))));
             }
             break;
 
@@ -120,7 +117,7 @@ announcer::announcer(const aware::avahi::detail::client& client)
                                 wrapper::entry_group_callback,
                                 this);
     if (ptr == 0)
-        throw std::bad_alloc();
+        throw boost::system::system_error(avahi::error::make_error_code(AVAHI_ERR_DISCONNECTED));
 
     assert(avahi_entry_group_get_state(ptr) == AVAHI_ENTRY_GROUP_UNCOMMITED);
 }
@@ -165,9 +162,7 @@ void announcer::async_announce(const aware::contact& contact,
         properties = contact.get_properties();
         if (properties == 0)
         {
-            boost::system::error_code error(boost::system::errc::not_enough_memory,
-                                            boost::system::system_category());
-            handler(error);
+            handler(avahi::error::make_error_code(AVAHI_ERR_NO_MEMORY));
             return;
         }
     }
@@ -192,7 +187,7 @@ void announcer::async_announce(const aware::contact& contact,
         }
         else if (rc != AVAHI_OK)
         {
-            handler(convert_error(rc));
+            handler(avahi::error::make_error_code(rc));
             return;
         }
         else
@@ -212,7 +207,7 @@ void announcer::commit(AvahiEntryGroup *group)
         int rc = avahi_entry_group_commit(group);
         if (rc != AVAHI_OK)
         {
-            handler(convert_error(rc));
+            handler(avahi::error::make_error_code(rc));
         }
     }
 }

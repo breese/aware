@@ -1,11 +1,11 @@
 set(AWARE_BACKEND_SOURCE
+  src/avahi/error.cpp
   src/avahi/service.cpp
   src/avahi/monitor_socket.cpp
   src/avahi/announce_socket.cpp
   src/avahi/detail/announcer.cpp
   src/avahi/detail/browser.cpp
   src/avahi/detail/client.cpp
-  src/avahi/detail/error.cpp
   src/avahi/detail/poller.cpp
   PARENT_SCOPE
 )

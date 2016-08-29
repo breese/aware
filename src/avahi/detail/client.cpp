@@ -12,8 +12,10 @@
 
 #include <iostream> // FIXME
 #include <cassert>
-#include <new> // std::bad_alloc
+#include <avahi-common/error.h>
 #include <avahi-client/client.h>
+#include <boost/system/system_error.hpp>
+#include <aware/avahi/error.hpp>
 #include <aware/avahi/detail/poller.hpp>
 #include <aware/avahi/detail/client.hpp>
 
@@ -67,7 +69,7 @@ client::client(aware::avahi::detail::poller& poller)
                            this,
                            0);
     if (ptr == 0)
-        throw std::bad_alloc();
+        throw boost::system::system_error(avahi::error::make_error_code(AVAHI_ERR_DISCONNECTED));
 
     assert(avahi_client_get_state(ptr) == AVAHI_CLIENT_S_RUNNING);
 }

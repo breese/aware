@@ -11,12 +11,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cassert>
-#include <new> // std::bad_alloc
 #include <boost/asio.hpp>
 #include <avahi-common/error.h>
 #include <avahi-common/malloc.h>
 #include <avahi-client/lookup.h>
+#include <boost/system/system_error.hpp>
 #include <aware/detail/utility.hpp>
+#include <aware/avahi/error.hpp>
 #include <aware/avahi/detail/client.hpp>
 #include <aware/avahi/detail/browser.hpp>
 
@@ -87,9 +88,7 @@ struct browser::wrapper
         }
         else
         {
-            boost::system::error_code error(avahi_client_errno(avahi_service_resolver_get_client(resolver)),
-                                            boost::system::system_category());
-            self->listener.on_failure(error);
+            self->listener.on_failure(avahi::error::make_error_code(avahi_client_errno(avahi_service_resolver_get_client(resolver))));
         }
         avahi_service_resolver_free(resolver);
     }
@@ -111,9 +110,7 @@ struct browser::wrapper
         {
         case AVAHI_BROWSER_FAILURE:
             {
-                boost::system::error_code error(avahi_client_errno(avahi_service_browser_get_client(browser)),
-                                                boost::system::system_category());
-                self->listener.on_failure(error);
+                self->listener.on_failure(avahi::error::make_error_code(avahi_client_errno(avahi_service_browser_get_client(browser))));
             }
             break;
 
@@ -133,9 +130,7 @@ struct browser::wrapper
                     userdata);
                 if (!resolver)
                 {
-                    boost::system::error_code error(avahi_client_errno(avahi_service_browser_get_client(browser)),
-                                                    boost::system::system_category());
-                    self->listener.on_failure(error);
+                    self->listener.on_failure(avahi::error::make_error_code(avahi_client_errno(avahi_service_browser_get_client(browser))));
                 }
                 // resolver is freed in the callback
             }
@@ -180,7 +175,7 @@ browser::browser(const aware::avahi::detail::client& client,
                                     wrapper::browser_callback,
                                     this);
     if (ptr == 0)
-        throw std::bad_alloc();
+        throw boost::system::system_error(avahi::error::make_error_code(AVAHI_ERR_DISCONNECTED));
 }
 
 browser::~browser()

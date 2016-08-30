@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     aware::contact::property_map_type properties;
     properties["mac"] = "11:22:33:44:55:66";
     boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), 3834);
-    aware::contact contact("This is an announcement", "announce", endpoint, properties);
+    aware::contact contact = aware::contact().name("This is an announcement").type("announce").endpoint(endpoint).properties(properties);
     boost::asio::io_service io;
     aware::avahi::announce_socket announcer(io);
     announcer.async_announce(contact, announced);

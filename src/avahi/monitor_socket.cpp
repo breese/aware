@@ -118,7 +118,7 @@ void monitor_socket::async_listen(aware::contact& contact,
 void monitor_socket::do_async_listen(aware::contact& contact,
                                      async_listen_handler handler)
 {
-    const std::string& key = contact.get_type();
+    const std::string& key = contact.type();
     monitor_map::iterator where = monitors.lower_bound(key);
     if ((where == monitors.end()) || (monitors.key_comp()(key, where->first)))
     {

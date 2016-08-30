@@ -83,7 +83,7 @@ struct browser::wrapper
             boost::asio::ip::tcp::endpoint endpoint(aware::avahi::detail::to_address(*address),
                                                     port);
             std::string type = aware::detail::type_decode(full_type);
-            aware::contact contact(name, type, endpoint, properties);
+            aware::contact contact = aware::contact().name(name).type(type).endpoint(endpoint).properties(properties);
             self->listener.on_appear(contact);
         }
         else
@@ -139,7 +139,7 @@ struct browser::wrapper
         case AVAHI_BROWSER_REMOVE:
             {
                 std::string type = aware::detail::type_decode(full_type);
-                aware::contact contact(name, type);
+                aware::contact contact = aware::contact().name(name).type(type);
                 self->listener.on_disappear(contact);
             }
             break;
@@ -162,10 +162,10 @@ browser::browser(const aware::avahi::detail::client& client,
     : listener(listener)
 {
     const AvahiProtocol protocol =
-        contact.get_endpoint().protocol() == boost::asio::ip::tcp::v6()
+        contact.endpoint().protocol() == boost::asio::ip::tcp::v6()
         ? AVAHI_PROTO_INET6
         : AVAHI_PROTO_INET;
-    std::string type = aware::detail::type_encode(contact.get_type());
+    std::string type = aware::detail::type_encode(contact.type());
     ptr = avahi_service_browser_new(client,
                                     AVAHI_IF_UNSPEC,
                                     protocol,

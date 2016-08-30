@@ -24,7 +24,7 @@ void AwareHandler(const boost::system::error_code& error,
                   aware::monitor_socket& socket)
 {
     // The device described by contact has joined or left the network
-    std::cout << contact.get_type() << " = " << contact.get_endpoint() << std::endl;
+    std::cout << contact.type() << " = " << contact.endpoint() << std::endl;
     // Listen for next event
     socket.async_listen(contact,
                         boost::bind(AwareHandler,
@@ -38,7 +38,7 @@ int main()
     boost::asio::io_service io;
     aware::avahi::monitor_socket socket(io);
     // Listen for "_announce._tcp" announcements
-    aware::contact contact("", "announce");
+    aware::contact contact = aware::contact().type("announce");
     socket.async_listen(contact,
                         boost::bind(AwareHandler,
                                     _1,

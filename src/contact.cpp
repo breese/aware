@@ -18,42 +18,85 @@ namespace aware
 // FIXME: Verify parameters against RFC 6762
 
 contact::contact()
-{
-}
-
-contact::contact(const std::string& name,
-                 const std::string& type)
-    : name(name),
-      type(type)
-{
-}
-
-contact::contact(const std::string& name,
-                 const std::string& type,
-                 const endpoint_type& endpoint)
-    : name(name),
-      type(type),
-      endpoint(endpoint)
-{
-}
-
-contact::contact(const std::string& name,
-                 const std::string& type,
-                 const endpoint_type& endpoint,
-                 const property_map_type& properties)
-    : name(name),
-      type(type),
-      endpoint(endpoint),
-      properties(properties)
+    : contact_index(-1)
 {
 }
 
 contact::contact(const contact& other)
-    : name(other.name),
-      type(other.type),
-      endpoint(other.endpoint),
-      properties(other.properties)
+    : contact_name(other.contact_name),
+      contact_type(other.contact_type),
+      contact_index(other.contact_index),
+      contact_endpoint(other.contact_endpoint),
+      contact_properties(other.contact_properties)
 {
+}
+
+contact& contact::operator= (const contact& other)
+{
+    if (&other != this)
+    {
+        contact_name = other.contact_name;
+        contact_type = other.contact_type;
+        contact_index = other.contact_index;
+        contact_endpoint = other.contact_endpoint;
+        contact_properties = other.contact_properties;
+    }
+    return *this;
+}
+
+contact& contact::name(const std::string& n)
+{
+    contact_name = n;
+    return *this;
+}
+
+contact& contact::type(const std::string& t)
+{
+    contact_type = t;
+    return *this;
+}
+
+contact& contact::endpoint(const endpoint_type& e)
+{
+    contact_endpoint = e;
+    return *this;
+}
+
+contact& contact::index(int i)
+{
+    contact_index = i;
+    return *this;
+}
+
+contact& contact::properties(const property_map_type& p)
+{
+    contact_properties = p;
+    return *this;
+}
+
+const std::string& contact::name() const
+{
+    return contact_name;
+}
+
+const std::string& contact::type() const
+{
+    return contact_type;
+}
+
+const contact::endpoint_type& contact::endpoint() const
+{
+    return contact_endpoint;
+}
+
+int contact::index() const
+{
+    return contact_index;
+}
+
+const contact::property_map_type& contact::properties() const
+{
+    return contact_properties;
 }
 
 } // namespace aware

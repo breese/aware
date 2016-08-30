@@ -138,16 +138,16 @@ void announcer::async_announce(const aware::contact& contact,
     handler = h;
 
     const AvahiPublishFlags flags = AvahiPublishFlags(0);
-    const aware::contact::endpoint_type endpoint = contact.get_endpoint();
+    const aware::contact::endpoint_type endpoint = contact.endpoint();
     // Use all network interfaces
     const AvahiIfIndex interface_index = AVAHI_IF_UNSPEC;
     // Use only a specific protocol
     const AvahiProtocol protocol =
-        contact.get_endpoint().protocol() == boost::asio::ip::tcp::v6()
+        contact.endpoint().protocol() == boost::asio::ip::tcp::v6()
         ? AVAHI_PROTO_INET6
         : AVAHI_PROTO_INET;
-    std::string name = contact.get_name();
-    std::string type = aware::detail::type_encode(contact.get_type());
+    std::string name = contact.name();
+    std::string type = aware::detail::type_encode(contact.type());
     // Use .local
     const char *domain = 0;
     // Host name
@@ -157,9 +157,9 @@ void announcer::async_announce(const aware::contact& contact,
         : address.to_string();
 
     property_list properties;
-    if (!contact.get_properties().empty())
+    if (!contact.properties().empty())
     {
-        properties = contact.get_properties();
+        properties = contact.properties();
         if (properties == 0)
         {
             handler(avahi::error::make_error_code(AVAHI_ERR_NO_MEMORY));

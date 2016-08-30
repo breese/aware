@@ -27,27 +27,27 @@ public:
     typedef std::map<std::string, std::string> property_map_type;
 
     contact();
-    contact(const std::string& name,
-            const std::string& type);
-    contact(const std::string& name,
-            const std::string& type,
-            const endpoint_type& endpoint);
-    contact(const std::string& name,
-            const std::string& type,
-            const endpoint_type& endpoint,
-            const property_map_type& properties);
     contact(const contact&);
+    contact& operator= (const contact&);
 
-    const std::string& get_name() const { return name; }
-    const std::string& get_type() const { return type; }
-    const endpoint_type& get_endpoint() const { return endpoint; }
-    const property_map_type& get_properties() const { return properties; }
+    contact& name(const std::string&);
+    contact& type(const std::string&);
+    contact& endpoint(const endpoint_type&);
+    contact& index(int);
+    contact& properties(const property_map_type&);
+
+    const std::string& name() const;
+    const std::string& type() const;
+    const endpoint_type& endpoint() const;
+    int index() const;
+    const property_map_type& properties() const;
 
 private:
-    std::string name;
-    std::string type;
-    endpoint_type endpoint;
-    property_map_type properties;
+    std::string contact_name;
+    std::string contact_type;
+    int contact_index;
+    endpoint_type contact_endpoint;
+    property_map_type contact_properties;
 };
 
 } // namespace aware

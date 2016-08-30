@@ -1,3 +1,6 @@
+#ifndef AWARE_AVAHI_ERROR_HPP
+#define AWARE_AVAHI_ERROR_HPP
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // http://github.com/breese/aware
@@ -29,3 +32,5 @@ inline boost::system::error_code make_error_code(int e)
 } // namespace error
 } // namespace avahi
 } // namespace aware
+
+#endif // AWARE_AVAHI_ERROR_HPP

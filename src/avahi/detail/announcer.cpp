@@ -130,7 +130,7 @@ announcer::~announcer()
     }
 }
 
-void announcer::async_announce(const aware::contact& contact,
+void announcer::async_announce(aware::contact& contact,
                                async_announce_handler h)
 {
     assert(ptr != 0);

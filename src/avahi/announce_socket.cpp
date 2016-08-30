@@ -26,7 +26,7 @@ announce_socket::announce_socket(boost::asio::io_service& io)
 {
 }
 
-void announce_socket::async_announce(const aware::contact& contact,
+void announce_socket::async_announce(aware::contact& contact,
                                      async_announce_handler handler)
 {
     announcer.async_announce(contact,

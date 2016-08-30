@@ -24,7 +24,7 @@ class announce_socket
 public:
     typedef boost::function<void (const boost::system::error_code&)> async_announce_handler;
 
-    virtual void async_announce(const aware::contact& contact,
+    virtual void async_announce(aware::contact& contact,
                                 async_announce_handler) = 0;
 };
 

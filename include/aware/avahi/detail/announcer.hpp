@@ -39,7 +39,7 @@ public:
     announcer(const aware::avahi::detail::client&);
     ~announcer();
 
-    void async_announce(const aware::contact&,
+    void async_announce(aware::contact&,
                         async_announce_handler);
 
 private:

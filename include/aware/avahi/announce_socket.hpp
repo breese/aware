@@ -32,12 +32,10 @@ class announce_socket
       public boost::asio::basic_io_object<avahi::service>
 {
 public:
-    typedef boost::function<void (const boost::system::error_code&)> async_announce_handler;
-
     announce_socket(boost::asio::io_service&);
 
-    void async_announce(const aware::contact& contact,
-                        async_announce_handler);
+    virtual void async_announce(aware::contact& contact,
+                                async_announce_handler);
 
 private:
     void process_announce(const boost::system::error_code&,

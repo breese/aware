@@ -74,6 +74,11 @@ const std::string& contact::name() const
     return contact_name;
 }
 
+bool contact::empty() const
+{
+    return contact_endpoint.address().is_unspecified();
+}
+
 const std::string& contact::type() const
 {
     return contact_type;

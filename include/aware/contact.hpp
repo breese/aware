@@ -35,6 +35,7 @@ public:
     contact& index(int);
     contact& properties(const property_map_type&);
 
+    bool empty() const;
     const std::string& type() const;
     const std::string& name() const;
     const endpoint_type& endpoint() const;

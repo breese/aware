@@ -39,16 +39,25 @@ private:
     {
         if (!error)
         {
-            std::cout << "Entry:" << std::endl;
-            std::cout << "  type = " << contact.type() << std::endl;
-            std::cout << "  name = " << contact.name() << std::endl;
-            std::cout << "  endpoint = " << contact.endpoint() << std::endl;
-            aware::contact::property_map_type properties = contact.properties();
-            for (aware::contact::property_map_type::const_iterator it = properties.begin();
-                 it != properties.end();
-                 ++it)
+            if (contact.empty())
             {
-                std::cout << "  " << it->first << " = " << it->second << std::endl;
+                std::cout << "Removed:" << std::endl;
+                std::cout << "  type = " << contact.type() << std::endl;
+                std::cout << "  name = " << contact.name() << std::endl;
+            }
+            else
+            {
+                std::cout << "Added:" << std::endl;
+                std::cout << "  type = " << contact.type() << std::endl;
+                std::cout << "  name = " << contact.name() << std::endl;
+                std::cout << "  endpoint = " << contact.endpoint() << std::endl;
+                aware::contact::property_map_type properties = contact.properties();
+                for (aware::contact::property_map_type::const_iterator it = properties.begin();
+                     it != properties.end();
+                     ++it)
+                {
+                    std::cout << "  " << it->first << " = " << it->second << std::endl;
+                }
             }
             // Launch the next listen
             async_listen(contact);

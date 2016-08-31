@@ -17,8 +17,9 @@ namespace aware
 
 // FIXME: Verify parameters against RFC 6762
 
-contact::contact()
-    : contact_index(-1)
+contact::contact(const std::string& type)
+    : contact_type(type),
+      contact_index(-1)
 {
 }
 
@@ -47,12 +48,6 @@ contact& contact::operator= (const contact& other)
 contact& contact::name(const std::string& n)
 {
     contact_name = n;
-    return *this;
-}
-
-contact& contact::type(const std::string& t)
-{
-    contact_type = t;
     return *this;
 }
 

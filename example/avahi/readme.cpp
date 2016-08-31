@@ -24,7 +24,7 @@ int main()
     boost::asio::io_service io;
     aware::avahi::monitor_socket socket(io);
     // Listen for "_announce._tcp" announcements
-    aware::contact contact = aware::contact().type("announce");
+    aware::contact contact("announce");
     socket.async_listen(contact,
                         boost::bind(AwareHandler,
                                     _1,

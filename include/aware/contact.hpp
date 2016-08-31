@@ -26,18 +26,17 @@ public:
     typedef boost::asio::ip::tcp::endpoint endpoint_type;
     typedef std::map<std::string, std::string> property_map_type;
 
-    contact();
+    contact(const std::string&);
     contact(const contact&);
     contact& operator= (const contact&);
 
     contact& name(const std::string&);
-    contact& type(const std::string&);
     contact& endpoint(const endpoint_type&);
     contact& index(int);
     contact& properties(const property_map_type&);
 
-    const std::string& name() const;
     const std::string& type() const;
+    const std::string& name() const;
     const endpoint_type& endpoint() const;
     int index() const;
     const property_map_type& properties() const;

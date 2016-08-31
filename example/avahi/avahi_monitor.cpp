@@ -40,8 +40,8 @@ private:
         if (!error)
         {
             std::cout << "Entry:" << std::endl;
-            std::cout << "  name = " << contact.name() << std::endl;
             std::cout << "  type = " << contact.type() << std::endl;
+            std::cout << "  name = " << contact.name() << std::endl;
             std::cout << "  endpoint = " << contact.endpoint() << std::endl;
             aware::contact::property_map_type properties = contact.properties();
             for (aware::contact::property_map_type::const_iterator it = properties.begin();
@@ -69,7 +69,7 @@ private:
 
 int main(int argc, char *argv[])
 {
-    aware::contact contact = aware::contact().type("announce");
+    aware::contact contact("announce");
     boost::asio::io_service io;
     my_monitor monitor(io);
     monitor.async_listen(contact);

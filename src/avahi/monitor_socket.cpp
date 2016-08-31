@@ -85,7 +85,7 @@ public:
 
     virtual void on_failure(const boost::system::error_code& error)
     {
-        aware::contact no_contact;
+        aware::contact no_contact("");
         responses.push(std::make_pair(error, no_contact));
         perform();
     }

@@ -19,13 +19,14 @@ namespace aware
 
 contact::contact(const std::string& type)
     : contact_type(type),
-      contact_index(-1)
+      contact_index(wildcard)
 {
 }
 
 contact::contact(const contact& other)
-    : contact_name(other.contact_name),
-      contact_type(other.contact_type),
+    : contact_type(other.contact_type),
+      contact_name(other.contact_name),
+      contact_domain(other.contact_domain),
       contact_index(other.contact_index),
       contact_endpoint(other.contact_endpoint),
       contact_properties(other.contact_properties)
@@ -36,8 +37,9 @@ contact& contact::operator= (const contact& other)
 {
     if (&other != this)
     {
-        contact_name = other.contact_name;
         contact_type = other.contact_type;
+        contact_name = other.contact_name;
+        contact_domain = other.contact_domain;
         contact_index = other.contact_index;
         contact_endpoint = other.contact_endpoint;
         contact_properties = other.contact_properties;
@@ -45,33 +47,34 @@ contact& contact::operator= (const contact& other)
     return *this;
 }
 
-contact& contact::name(const std::string& n)
+contact& contact::name(const std::string& value)
 {
-    contact_name = n;
+    contact_name = value;
     return *this;
 }
 
-contact& contact::endpoint(const endpoint_type& e)
+contact& contact::domain(const std::string& value)
 {
-    contact_endpoint = e;
+    contact_domain = value;
     return *this;
 }
 
-contact& contact::index(int i)
+contact& contact::endpoint(const endpoint_type& value)
 {
-    contact_index = i;
+    contact_endpoint = value;
     return *this;
 }
 
-contact& contact::properties(const property_map_type& p)
+contact& contact::index(int value)
 {
-    contact_properties = p;
+    contact_index = value;
     return *this;
 }
 
-const std::string& contact::name() const
+contact& contact::properties(const property_map_type& value)
 {
-    return contact_name;
+    contact_properties = value;
+    return *this;
 }
 
 bool contact::empty() const
@@ -82,6 +85,16 @@ bool contact::empty() const
 const std::string& contact::type() const
 {
     return contact_type;
+}
+
+const std::string& contact::name() const
+{
+    return contact_name;
+}
+
+const std::string& contact::domain() const
+{
+    return contact_domain;
 }
 
 const contact::endpoint_type& contact::endpoint() const
@@ -97,6 +110,27 @@ int contact::index() const
 const contact::property_map_type& contact::properties() const
 {
     return contact_properties;
+}
+
+bool contact::operator== (const contact& other) const
+{
+    return (((contact_index == other.contact_index) ||
+             (contact_index == wildcard) ||
+             (other.contact_index == wildcard)) &&
+            (contact_type == other.contact_type) &&
+            (contact_name == other.contact_name) &&
+            (contact_domain == other.contact_domain));
+}
+
+bool contact::operator< (const contact& other) const
+{
+    return ((contact_index < other.contact_index) ||
+            ((contact_index == other.contact_index) &&
+             ((contact_type < other.contact_type) ||
+              ((contact_type == other.contact_type) &&
+               ((contact_name < other.contact_name) ||
+                ((contact_name == other.contact_name) &&
+                 (contact_domain < other.contact_domain)))))));
 }
 
 } // namespace aware

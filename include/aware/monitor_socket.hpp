@@ -13,14 +13,12 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <string>
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+#include <boost/system/error_code.hpp>
 #include <aware/contact.hpp>
 
 namespace aware
 {
-namespace detail { class monitor; }
 
 class monitor_socket
 {

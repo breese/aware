@@ -77,7 +77,9 @@ target_link_libraries(aware ${AWARE_ZEROCONF_TARGET} ${EXTRA_LIBS})
 ###############################################################################
 
 if(${ZEROCONF_AVAHI_FOUND})
-  add_subdirectory(example/avahi)
+  add_subdirectory(example/avahi EXCLUDE_FROM_ALL)
+  add_custom_target(example DEPENDS avahi-example)
 elseif(${ZEROCONF_BONJOUR_FOUND})
-  add_subdirectory(example/bonjour)
+  add_subdirectory(example/bonjour EXCLUDE_FROM_ALL)
+  add_custom_target(example DEPENDS bonjour-example)
 endif()

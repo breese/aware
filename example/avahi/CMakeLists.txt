@@ -12,3 +12,5 @@ add_executable(readme
   readme.cpp
 )
 target_link_libraries(readme aware)
+
+add_custom_target(avahi-example DEPENDS avahi_announce avahi_monitor readme)

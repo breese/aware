@@ -31,6 +31,7 @@ public:
     contact& operator= (const contact&);
 
     contact& name(const std::string&);
+    contact& domain(const std::string&);
     contact& endpoint(const endpoint_type&);
     contact& index(int);
     contact& properties(const property_map_type&);
@@ -38,13 +39,21 @@ public:
     bool empty() const;
     const std::string& type() const;
     const std::string& name() const;
+    const std::string& domain() const;
     const endpoint_type& endpoint() const;
     int index() const;
     const property_map_type& properties() const;
 
+    bool operator== (const contact&) const;
+    bool operator< (const contact&) const;
+
+public:
+    static const int wildcard = -1;
+
 private:
-    std::string contact_name;
     std::string contact_type;
+    std::string contact_name;
+    std::string contact_domain;
     int contact_index;
     endpoint_type contact_endpoint;
     property_map_type contact_properties;

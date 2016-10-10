@@ -91,7 +91,7 @@ public:
     }
 
 private:
-    aware::contact& contact;
+    aware::contact contact;
     boost::shared_ptr<detail::browser> browser;
     std::queue<response_type> responses;
     std::queue<handler_type> handlers;

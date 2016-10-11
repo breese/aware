@@ -2,6 +2,7 @@ set(AWARE_BACKEND_SOURCE
   src/bonjour/announce_socket.cpp
   src/bonjour/monitor_socket.cpp
   src/bonjour/error.cpp
+  src/bonjour/factory.cpp
   src/bonjour/detail/announcer.cpp
   src/bonjour/detail/monitor.cpp
   src/bonjour/detail/browser.cpp

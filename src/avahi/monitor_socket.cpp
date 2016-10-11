@@ -38,7 +38,7 @@ class monitor : public browser::listener
 public:
     monitor(boost::asio::io_service& io,
             aware::contact& contact)
-        : contact(contact)
+        : contact_pointer(&contact)
     {
         browser = boost::make_shared<detail::browser>(
             boost::asio::use_service<avahi::service>(io).get_client(),
@@ -47,8 +47,9 @@ public:
     }
 
     //! @pre Must be called from an io_service thread
-    void prepare(handler_type handler)
+    void prepare(aware::contact& contact, handler_type handler)
     {
+        contact_pointer = &contact;
         handlers.push(handler);
         perform();
     }
@@ -63,8 +64,9 @@ public:
 
         const response_type& response = responses.front();
         handler_type& handler = handlers.front();
-        contact = response.second;
+        *contact_pointer = response.second;
         handler(response.first);
+        contact_pointer = 0;
         responses.pop();
         handlers.pop();
     }
@@ -91,7 +93,7 @@ public:
     }
 
 private:
-    aware::contact contact;
+    aware::contact *contact_pointer;
     boost::shared_ptr<detail::browser> browser;
     std::queue<response_type> responses;
     std::queue<handler_type> handlers;
@@ -131,7 +133,7 @@ void monitor_socket::do_async_listen(aware::contact& contact,
                     boost::ref(contact))));
     }
     assert(where != monitors.end());
-    where->second->prepare(handler);
+    where->second->prepare(contact, handler);
 }
 
 } // namespace avahi

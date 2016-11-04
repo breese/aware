@@ -10,7 +10,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <iostream> // FIXME
 #include <cassert>
 #include <avahi-common/error.h>
 #include <avahi-client/client.h>
@@ -84,21 +83,30 @@ client::~client()
 
 void client::registering(AvahiClient *client)
 {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-    assert(ptr == client);
-    // FIXME
+    if (ptr == 0)
+    {
+        // Ignore because we have been called from the constructor
+    }
+    else
+    {
+        assert(ptr == client);
+    }
 }
 
 void client::connecting(AvahiClient *client)
 {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-    assert(ptr == client);
-    // FIXME
+    if (ptr == 0)
+    {
+        // Ignore because we have been called from the constructor
+    }
+    else
+    {
+        assert(ptr == client);
+    }
 }
 
 void client::running(AvahiClient *client)
 {
-    // std::cout << __PRETTY_FUNCTION__ << " ptr=" << ptr << std::endl;
     if (ptr == 0)
     {
         // Ignore because we have been called from the constructor
@@ -111,16 +119,26 @@ void client::running(AvahiClient *client)
 
 void client::collision(AvahiClient *client)
 {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-    assert(ptr == client);
-    // FIXME
+    if (ptr == 0)
+    {
+        // Ignore because we have been called from the constructor
+    }
+    else
+    {
+        assert(ptr == client);
+    }
 }
 
 void client::failure(AvahiClient *client)
 {
-    std::cout << __PRETTY_FUNCTION__ << std::endl;
-    assert(ptr == client);
-    // FIXME
+    if (ptr == 0)
+    {
+        // Ignore because we have been called from the constructor
+    }
+    else
+    {
+        assert(ptr == client);
+    }
 }
 
 } // namespace detail

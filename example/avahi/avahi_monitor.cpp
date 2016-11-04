@@ -78,7 +78,12 @@ private:
 
 int main(int argc, char *argv[])
 {
-    aware::contact contact("announce");
+    if (argc != 2)
+    {
+        std::cerr << "Usage: " << argv[0] << " <type>" << std::endl;
+        return 1;
+    }
+    aware::contact contact(argv[1]);
     boost::asio::io_service io;
     my_monitor monitor(io);
     monitor.async_listen(contact);

@@ -48,7 +48,7 @@ struct AvahiWatch
         }
     }
 
-    void update(AvahiWatchEvent event)
+    void update(AvahiWatchEvent /* event */)
     {
         // FIXME
         assert(false);
@@ -69,7 +69,7 @@ struct AvahiWatch
     }
 
     void process_read(const boost::system::error_code& error,
-                      std::size_t bytes_transferred)
+                      std::size_t /* bytes_transferred */)
     {
         if (!error)
         {
@@ -97,7 +97,7 @@ struct AvahiWatch
     }
 
     void process_write(const boost::system::error_code& error,
-                       std::size_t bytes_transferred)
+                       std::size_t /* bytes_transferred */)
     {
         if (!error)
         {

@@ -48,11 +48,11 @@ boost::asio::ip::address to_address(const sockaddr& addr)
 
 struct resolver::callback
 {
-    static void on_resolved(::DNSServiceRef ref,
-                            ::DNSServiceFlags flags,
+    static void on_resolved(::DNSServiceRef,
+                            ::DNSServiceFlags,
                             uint32_t interface_index,
                             ::DNSServiceErrorType error,
-                            const char *fullname, // name._type._tcp.local
+                            const char * /* fullname */, // name._type._tcp.local
                             const char *host, // host.local
                             uint16_t port,
                             uint16_t txt_length,
@@ -105,13 +105,13 @@ struct resolver::callback
         }
     }
 
-    static void on_addrinfo(::DNSServiceRef ref,
+    static void on_addrinfo(::DNSServiceRef,
                             ::DNSServiceFlags flags,
-                            uint32_t interface_index,
+                            uint32_t /* interface_index */,
                             ::DNSServiceErrorType error,
-                            const char *host,
+                            const char * /* host */,
                             const struct sockaddr *address,
-                            uint32_t ttl,
+                            uint32_t /* ttl */,
                             void *context)
     {
         resolver *self = static_cast<resolver *>(context);

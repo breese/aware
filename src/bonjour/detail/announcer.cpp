@@ -31,12 +31,12 @@ namespace detail
 
 struct announcer::callback
 {
-    static void on_registered(::DNSServiceRef ref,
+    static void on_registered(::DNSServiceRef,
                               ::DNSServiceFlags flags,
                               ::DNSServiceErrorType error,
                               const char *name,
                               const char *regtype,
-                              const char *domain,
+                              const char * /* domain */,
                               void *context)
     {
         using namespace aware::bonjour::detail;

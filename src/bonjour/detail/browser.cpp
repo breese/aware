@@ -32,7 +32,7 @@ namespace detail
 
 struct browser::callback
 {
-    static void on_browsed(::DNSServiceRef ref,
+    static void on_browsed(::DNSServiceRef,
                            ::DNSServiceFlags flags,
                            uint32_t interface_index,
                            ::DNSServiceErrorType error,

@@ -46,6 +46,7 @@ public:
     ~browser();
 
 private:
+    typedef browser::listener listener_type;
     struct wrapper;
 
     browser::listener& listener;

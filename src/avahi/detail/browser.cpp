@@ -49,13 +49,13 @@ struct browser::wrapper
 {
     static void resolver_callback(
         AvahiServiceResolver *resolver,
-        AvahiIfIndex interface,
-        AvahiProtocol protocol,
+        AvahiIfIndex,
+        AvahiProtocol,
         AvahiResolverEvent event,
         const char *name,
         const char *full_type,
-        const char *domain,
-        const char *host_name,
+        const char * /* domain */,
+        const char * /* host_name */,
         const AvahiAddress *address,
         unsigned short port,
         AvahiStringList *txt,
@@ -158,7 +158,7 @@ struct browser::wrapper
 
 browser::browser(const aware::avahi::detail::client& client,
                  const aware::contact& contact,
-                 typename browser::listener& listener)
+                 listener_type& listener)
     : listener(listener)
 {
     const AvahiProtocol protocol =

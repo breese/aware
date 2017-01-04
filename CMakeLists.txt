@@ -20,10 +20,6 @@ project(aware)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 
-add_definitions(-g -Wall)
-#add_definitions(-fmax-errors=1) # gcc
-#add_definitions(-ferror-limit=1) # clang
-
 ###############################################################################
 # Boost package
 ###############################################################################
@@ -70,6 +66,7 @@ add_subdirectory(src)
 add_library(aware STATIC
   ${AWARE_SOURCE}
 )
+target_compile_options(aware PRIVATE -Wall -Wextra)
 target_link_libraries(aware ${AWARE_ZEROCONF_TARGET} ${EXTRA_LIBS})
 
 ###############################################################################

@@ -16,6 +16,7 @@
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/asio/placeholders.hpp>
+#include <boost/utility/in_place_factory.hpp>
 #include <aware/bonjour/error.hpp>
 #include <aware/bonjour/detail/throw_on_error.hpp>
 #include <aware/bonjour/detail/monitor.hpp>

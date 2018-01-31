@@ -15,6 +15,7 @@
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
 #include <boost/asio/placeholders.hpp>
+#include <boost/utility/in_place_factory.hpp>
 #include <aware/detail/utility.hpp>
 #include <aware/bonjour/detail/announcer.hpp>
 #include <aware/bonjour/detail/properties.hpp>

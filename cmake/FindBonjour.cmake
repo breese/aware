@@ -12,8 +12,6 @@
 #
 # Defines Bonjour::Bonjour imported target
 
-mark_as_advanced(Bonjour_FOUND Bonjour_VERSION Bonjour_INCLUDE_DIR Bonjour_LIBRARY)
-
 find_path(Bonjour_INCLUDE_DIR
   NAMES dns_sd.h)
 
@@ -58,3 +56,5 @@ if(Bonjour_FOUND)
 	)
     endif()
 endif()
+
+mark_as_advanced(Bonjour_FOUND Bonjour_VERSION Bonjour_INCLUDE_DIR Bonjour_LIBRARY)

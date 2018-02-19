@@ -25,7 +25,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 ###############################################################################
 
 # FIXME: Probably ok to use older version
-find_package(Boost 1.49.0 COMPONENTS unit_test_framework system thread)
+find_package(Boost 1.49.0 COMPONENTS system thread)
 if (NOT ${Boost_FOUND})
   message(FATAL_ERROR "${Boost_ERROR_REASON}")
 endif()

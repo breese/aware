@@ -3,6 +3,8 @@ aware
 
 Device discovery with [Boost.Asio](http://www.boost.org/doc/libs/release/libs/asio/).
 
+Notice that this project is continued in [trial.aware](https://github.com/breese/trial.aware).
+
 Introduction
 ------------
 
